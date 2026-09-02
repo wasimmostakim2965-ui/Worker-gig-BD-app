@@ -199,10 +199,33 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                               fontWeight: FontWeight.w800,
                               fontSize: 18)),
                       const SizedBox(width: 16),
-                      Text(
-                          'Slots: ${job.filledSlots}/${job.totalSlots}',
-                          style: const TextStyle(
-                              fontSize: 12, color: AppColors.gray500)),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${job.filledSlots} OF ${job.totalSlots}',
+                              style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.gray500)),
+                          const SizedBox(height: 4),
+                          SizedBox(
+                            width: 96,
+                            height: 6,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(3),
+                              child: LinearProgressIndicator(
+                                value: job.totalSlots > 0
+                                    ? (job.filledSlots / job.totalSlots)
+                                        .clamp(0.0, 1.0)
+                                    : 0,
+                                backgroundColor: AppColors.gray200,
+                                valueColor: const AlwaysStoppedAnimation(
+                                    AppColors.earnGreen),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                       const Spacer(),
                       Text(job.category,
                           style: const TextStyle(
@@ -291,6 +314,30 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
               ),
             ),
           ),
+          if (job.imageUrl.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Job Image',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.gray500)),
+                    const SizedBox(height: 6),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(job.imageUrl,
+                          width: double.infinity, fit: BoxFit.cover),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           if (_error != null) ...[
             ErrorBox(_error!),

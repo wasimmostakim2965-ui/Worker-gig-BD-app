@@ -13,27 +13,21 @@ class WGLogo extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Exact copy of the website's Logo.tsx: logo.png inside a white
+        // rounded tile with a subtle shadow.
         Container(
           width: size,
           height: size,
+          padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.primary600, AppColors.primary800],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(size * 0.28),
+            boxShadow: const [
+              BoxShadow(
+                  color: Colors.black26, blurRadius: 6, offset: Offset(0, 2)),
+            ],
           ),
-          alignment: Alignment.center,
-          child: Text(
-            'WG',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w900,
-              fontSize: size * 0.42,
-              letterSpacing: -0.5,
-            ),
-          ),
+          child: Image.asset('assets/logo.png', fit: BoxFit.contain),
         ),
         const SizedBox(width: 10),
         Column(
@@ -41,19 +35,21 @@ class WGLogo extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'WORKER GIG BD',
+              'WORKER GIG',
               style: TextStyle(
-                fontSize: size * 0.34,
+                fontSize: size * 0.4,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-                color: light ? Colors.white : AppColors.gray900,
+                height: 1.1,
+                color: light ? Colors.white : AppColors.primary700,
               ),
             ),
             Text(
-              'Earn Money Online',
+              'BD',
               style: TextStyle(
-                fontSize: size * 0.22,
-                color: light ? AppColors.primary100 : AppColors.gray500,
+                fontSize: size * 0.25,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 2,
+                color: AppColors.accent500,
               ),
             ),
           ],

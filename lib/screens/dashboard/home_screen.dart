@@ -148,26 +148,44 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    SizedBox(
-                      height: 36,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          _catChip('all', 'All'),
-                          ..._categories.map((c) => _catChip(c.name, c.name)),
-                        ],
-                      ),
-                    ),
                     const SizedBox(height: 8),
+                    // Two dropdowns side by side — like the web filter row.
                     Row(
                       children: [
-                        const Text('Sort:',
-                            style: TextStyle(
-                                fontSize: 12, color: AppColors.gray500)),
+                        Expanded(
+                          child: _FilterDropdown(
+                            value: _category,
+                            items: [
+                              const DropdownMenuItem(
+                                  value: 'all',
+                                  child: Text('All Categories')),
+                              ..._categories.map((c) => DropdownMenuItem(
+                                  value: c.name, child: Text(c.name))),
+                            ],
+                            onChanged: (v) {
+                              setState(() => _category = v ?? 'all');
+                              _loadJobs();
+                            },
+                          ),
+                        ),
                         const SizedBox(width: 8),
-                        _sortChip('latest', 'Latest'),
-                        _sortChip('high_price', 'High Price'),
-                        _sortChip('low_price', 'Low Price'),
+                        _FilterDropdown(
+                          value: _sort,
+                          items: const [
+                            DropdownMenuItem(
+                                value: 'latest', child: Text('Latest')),
+                            DropdownMenuItem(
+                                value: 'high_price',
+                                child: Text('High Price')),
+                            DropdownMenuItem(
+                                value: 'low_price',
+                                child: Text('Low Price')),
+                          ],
+                          onChanged: (v) {
+                            setState(() => _sort = v ?? 'latest');
+                            _loadJobs();
+                          },
+                        ),
                       ],
                     ),
                   ],
@@ -197,43 +215,36 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _catChip(String value, String label) {
-    final selected = _category == value;
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: ChoiceChip(
-        label: Text(label, style: const TextStyle(fontSize: 12)),
-        selected: selected,
-        onSelected: (_) {
-          setState(() => _category = value);
-          _loadJobs();
-        },
-        selectedColor: AppColors.primary600,
-        labelStyle:
-            TextStyle(color: selected ? Colors.white : AppColors.gray600),
-        backgroundColor: Colors.white,
-        side: BorderSide(
-            color: selected ? AppColors.primary600 : AppColors.gray200),
-      ),
-    );
-  }
+}
 
-  Widget _sortChip(String value, String label) {
-    final selected = _sort == value;
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: GestureDetector(
-        onTap: () {
-          setState(() => _sort = value);
-          _loadJobs();
-        },
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
-            color: selected ? AppColors.primary600 : AppColors.gray500,
-          ),
+/// Matches the web filter selects: rounded bordered box, small text.
+class _FilterDropdown extends StatelessWidget {
+  final String value;
+  final List<DropdownMenuItem<String>> items;
+  final ValueChanged<String?> onChanged;
+  const _FilterDropdown(
+      {required this.value, required this.items, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: AppColors.gray200),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isDense: true,
+          isExpanded: true,
+          style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: AppColors.gray600),
+          items: items,
+          onChanged: onChanged,
         ),
       ),
     );
@@ -262,18 +273,21 @@ class _JobCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 1. Title + TOP JOB badge (like DashboardHome.tsx)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Text(job.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 15)),
+                            fontWeight: FontWeight.w600, fontSize: 14)),
                   ),
                   if (job.rewardPerWorker >= 0.1)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                          horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: const Color(0xFFC8F7DC),
                         borderRadius: BorderRadius.circular(4),
@@ -286,37 +300,46 @@ class _JobCard extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 6),
-              Text(
-                job.description,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                    color: AppColors.gray600, fontSize: 13, height: 1.4),
-              ),
               const SizedBox(height: 10),
+              // 2. "3 OF 10" + green progress bar ... $ 0.050 (like the web)
               Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${job.filledSlots} OF ${job.totalSlots}',
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.gray500),
+                      ),
+                      const SizedBox(height: 4),
+                      SizedBox(
+                        width: 96,
+                        height: 6,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(3),
+                          child: LinearProgressIndicator(
+                            value: job.totalSlots > 0
+                                ? (job.filledSlots / job.totalSlots)
+                                    .clamp(0.0, 1.0)
+                                : 0,
+                            backgroundColor: AppColors.gray200,
+                            valueColor: const AlwaysStoppedAnimation(
+                                AppColors.earnGreen),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   Text(fmtMoney(job.rewardPerWorker),
                       style: const TextStyle(
                           color: AppColors.earnGreen,
                           fontWeight: FontWeight.w800,
-                          fontSize: 16)),
-                  const SizedBox(width: 12),
-                  Icon(Icons.people_outline,
-                      size: 14, color: Colors.grey.shade500),
-                  const SizedBox(width: 4),
-                  Text('${job.filledSlots}/${job.totalSlots}',
-                      style: const TextStyle(
-                          fontSize: 12, color: AppColors.gray500)),
-                  const Spacer(),
-                  if (job.isPremiumOnly)
-                    const Icon(Icons.workspace_premium,
-                        size: 16, color: AppColors.accent500),
-                  const SizedBox(width: 6),
-                  Text(job.category,
-                      style: const TextStyle(
-                          fontSize: 11, color: AppColors.gray500)),
+                          fontSize: 18)),
                 ],
               ),
             ],
