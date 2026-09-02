@@ -1,69 +1,78 @@
-# Worker Gig BD — Android App (Flutter WebView wrapper)
+# Worker Gig BD — Android App (native Flutter)
 
-This app is a **full-screen WebView wrapper** around the live website
-<https://www.workergigbd.site>. It was a deliberate product decision: the
-website is the single source of truth, so the app renders it directly.
-Every feature (login, dashboard, jobs, proofs, deposits, withdrawals, admin
-panel) works identically in the app with **zero duplicated code** — when the
-website updates, the app updates instantly with no new release.
+A **real native Flutter app** that talks directly to the same Supabase
+backend as https://www.workergigbd.site. No WebView — every screen is a
+native Flutter screen calling the exact same tables, RPCs and RLS rules
+as the website, so web and app always behave identically.
 
 - Package ID: `com.workergigbd.app`
 - Entry point: `lib/main.dart`
-- Plugin: `webview_flutter` (official), `url_launcher`
+- State: `provider` (`AuthService` mirrors the web `AuthContext`)
 
-## How it behaves
+## Screens (mirrors of the website pages)
 
-- The site and its Supabase backend (`*.supabase.co`) load **inside** the app.
-- Everything else (WhatsApp, tel:, mailto:, Facebook, Google sign-in, ...)
-  opens in the device's **external browser/app**.
-- Android back button goes back in web history before closing the app.
-- A thin progress bar shows page loads; a Bengali offline screen with a
-  retry button appears if the connection drops.
+| Website | App |
+|---|---|
+| LandingPage | `screens/landing_screen.dart` |
+| LoginPage / SignupPage | `screens/auth/login_screen.dart`, `signup_screen.dart` |
+| AdminGatePage | `screens/auth/admin_login_screen.dart` |
+| DashboardLayout | `screens/dashboard/dashboard_shell.dart` (bottom nav) |
+| DashboardHome (Find Jobs) | `screens/dashboard/home_screen.dart` |
+| Job detail + proof submit | `screens/dashboard/job_detail_screen.dart` |
+| MyTasksPage | `screens/dashboard/my_tasks_screen.dart` |
+| MyJobsPage + buyer review | `screens/dashboard/my_jobs_screen.dart` |
+| PostJobPage | `screens/dashboard/post_job_screen.dart` |
+| DepositPage | `screens/dashboard/deposit_screen.dart` |
+| WithdrawPage | `screens/dashboard/withdraw_screen.dart` |
+| NotificationsPage | `screens/dashboard/notifications_screen.dart` |
+| ProfilePage | `screens/dashboard/profile_screen.dart` |
+| ShareEarnPage | `screens/dashboard/share_earn_screen.dart` |
+| Admin* (stats, users, deposits, withdrawals, jobs, tasks) | `screens/admin/*` |
 
-## Known limitation: Google sign-in
+## Server-side features the app reuses (no new backend work)
 
-Google **blocks OAuth inside embedded WebViews by policy**
-(`disallowed_useragent`). The app therefore opens the Google sign-in flow in
-the system browser. After signing in there, the user is logged in on the
-browser; returning to the app, they can use email/password login, or you can
-later add a deep link (`workergigbd://auth/callback`) plus a matching
-redirect URL in Supabase to hand the session back to the app.
+- All money moves go through the same SECURITY DEFINER RPCs
+  (`post_job`, `request_withdrawal`, `process_task`, `process_deposit`,
+  `process_withdrawal_request`, `adjust_user_balance`, ...).
+- Proof screenshots are uploaded to the `job-assets` Supabase bucket and
+  pass through the **same SHA-256 fraud registry** as the website
+  (`services/proof_upload.dart`) — a screenshot already used by anyone is
+  rejected with HTTP 409.
+- The `require_task_proof` DB trigger, balance guard trigger and RLS
+  policies apply to the app exactly as they do to the web.
 
-If most of your users sign up with Google only, consider enabling
-email/password or phone OTP as a fallback in Supabase Auth settings.
+## REQUIRED one-time setup: Google sign-in redirect URL
 
-## Build
+Google OAuth in the app returns via a deep link. Add this to
+**Supabase Dashboard → Authentication → Sign In / Up → Redirect URLs**:
 
-```bash
-flutter pub get
-flutter analyze          # must print "No issues found!"
-flutter build apk --release          # debug-signed if no keystore
-flutter build appbundle --release    # .aab for Play Store
+```
+com.workergigbd.app://login-callback/
 ```
 
-Before uploading to Play Store:
+(It is already declared as an intent-filter in
+`android/app/src/main/AndroidManifest.xml`.)
 
-1. **Create a signing keystore** (one-time, keep the file and passwords SAFE —
-   losing it means you can never update the app):
-   ```bash
-   keytool -genkey -v -keystore upload-keystore.jks \
-     -keyalg RSA -keysize 2048 -validity 10000 -alias upload
-   ```
-   (or let Play Console "Play App Signing" manage it — recommended)
-2. Add `android/key.properties` (keep it gitignored — it holds passwords):
-   ```
-   storePassword=...
-   keyPassword=...
-   keyAlias=upload
-   storeFile=/absolute/path/upload-keystore.jks
-   ```
-   and wire it into the `signingConfigs` in `android/app/build.gradle.kts`.
-3. **Replace the app icon**: easiest via the `flutter_launcher_icons` package.
+## Build (GitHub Actions — no local setup needed)
+
+Every push to `main` runs `.github/workflows/build.yml` which produces:
+
+- `app-release-apk` — installable test APK
+- `app-release-aab` — Play Store upload format
+
+Download from: repo → Actions → latest successful run → Artifacts.
+
+## Before Play Store upload
+
+1. Create an upload keystore (one-time; keep it SAFE) or enable
+   "Play App Signing" in Play Console (recommended):
+   `keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload`
+2. Add `android/key.properties` (gitignored) and wire it into
+   `android/app/build.gradle.kts` signing configs.
+3. Replace the default launcher icon (use `flutter_launcher_icons`).
 4. Bump `version:` in `pubspec.yaml` for every release.
 
-## iOS / other stores
+## iOS
 
-The project was created with `--platforms android,ios`. For iOS you need a
-Mac with Xcode (`flutter build ipa`). The same wrapper approach also works
-as a PWA or with one codebase for desktop via Flutter, but Play Store +
-App Store only need the Android `.aab` and the iOS build.
+The project includes the `ios/` platform. Building an `.ipa` requires a
+Mac with Xcode: `flutter build ipa`.
