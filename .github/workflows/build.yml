@@ -19,6 +19,9 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
+          # Pinned: newer stable Flutter requires Gradle >= 8.14, while this
+          # project's generated Gradle wrapper is 8.12 (valid for 3.35.x).
+          flutter-version: '3.35.4'
           channel: stable
           cache: true
 
