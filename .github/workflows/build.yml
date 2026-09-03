@@ -62,18 +62,18 @@ jobs:
           VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d'+' -f1)
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           mkdir -p release-out
-          cp build/app/outputs/flutter-apk/app-release.apk "release-out/Worker-Gig-BD-v${VERSION}.apk"
-          cp build/app/outputs/bundle/release/app-release.aab "release-out/Worker-Gig-BD-v${VERSION}.aab"
+          cp build/app/outputs/flutter-apk/app-release.apk "release-out/Worker-Gig-BD.apk"
+          cp build/app/outputs/bundle/release/app-release.aab "release-out/Worker-Gig-BD.aab"
 
       - uses: actions/upload-artifact@v4
         with:
           name: Worker-Gig-BD-apk
-          path: release-out/Worker-Gig-BD-*.apk
+          path: release-out/Worker-Gig-BD.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: Worker-Gig-BD-aab
-          path: release-out/Worker-Gig-BD-*.aab
+          path: release-out/Worker-Gig-BD.aab
 
       # সরাসরি APK ডাউনলোড লিংক (ZIP নয়):
       # https://github.com/wasimmostakim2965-ui/Worker-gig-BD-app/releases
@@ -83,15 +83,19 @@ jobs:
           tag_name: latest
           name: Worker Gig BD — Latest Build
           body: |
-            ## 📱 ডাউনলোড
+            ## 📱 ডাউনলোড (v${{ env.VERSION }})
 
             | ফাইল | কীসের জন্য |
             |---|---|
-            | **Worker-Gig-BD-v${{ env.VERSION }}.apk** | ফোনে সরাসরি ইনস্টল / যেকোনো অ্যাপ স্টোর (APKPure, APKCombo ইত্যাদি) |
-            | **Worker-Gig-BD-v${{ env.VERSION }}.aab** | শুধু Google Play Console-এ আপলোড |
+            | **Worker-Gig-BD.apk** | ফোনে সরাসরি ইনস্টল / যেকোনো অ্যাপ স্টোর (APKPure, APKCombo ইত্যাদি) |
+            | **Worker-Gig-BD.aab** | শুধু Google Play Console-এ আপলোড |
+
+            **স্থায়ী ডাইরেক্ট APK লিংক** (শেয়ার করুন — Telegram/WhatsApp/ওয়েবসাইটে):
+            ```
+            https://github.com/wasimmostakim2965-ui/Worker-gig-BD-app/releases/latest/download/Worker-Gig-BD.apk
+            ```
 
             APK ফাইলটা সরাসরি ডাউনলোড হয় — কোনো ZIP/extract করতে হয় না।
-            Telegram/WhatsApp-এ ফাইল না পাঠিয়ে এই রিলিজ পেজের **লিংক** শেয়ার করুন।
 
             > প্রোডাকশন keystore দিয়ে সাইনড (GitHub Secrets থেকে)।
           files: release-out/*
