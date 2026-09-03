@@ -84,11 +84,39 @@ class AuthService extends ChangeNotifier {
   }
 
   /// Google sign-in/sign-up (same OAuth flow as the website).
+  /// Builds the Google OAuth URL. The UI opens it inside an in-app WebView
+  /// (never leaves the app for the browser) and hands the callback back.
+  Future<Uri> getGoogleSignInUrl({String? referralCode}) async {
+    final res = await client.auth.getOAuthSignInUrl(
+      provider: OAuthProvider.google,
+      redirectTo: AppConfig.oauthRedirect,
+      queryParams:
+          referralCode != null && referralCode.isNotEmpty
+              ? {'ref': referralCode}
+              : null,
+    );
+    return Uri.parse(res.url);
+  }
+
+  /// Completes sign-in from the OAuth deep-link callback (PKCE exchange).
+  Future<String?> completeOAuthSignIn(Uri uri) async {
+    try {
+      await client.auth.exchangeCodeForSession(uri.toString());
+      return null;
+    } on AuthException catch (e) {
+      return e.message;
+    } catch (e) {
+      return '$e';
+    }
+  }
+
+  /// Kept for API compatibility — prefer the in-app WebView flow above.
   Future<String?> signInWithGoogle({String? referralCode}) async {
     try {
       await client.auth.signInWithOAuth(
         OAuthProvider.google,
         redirectTo: AppConfig.oauthRedirect,
+        authScreenLaunchMode: LaunchMode.inAppWebView,
         queryParams:
             referralCode != null && referralCode.isNotEmpty
                 ? {'ref': referralCode}

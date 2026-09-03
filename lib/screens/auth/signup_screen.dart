@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../../services/auth_service.dart';
+import 'oauth_webview_screen.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
 
@@ -23,12 +22,15 @@ class _SignupScreenState extends State<SignupScreen> {
       _error = null;
       _loading = true;
     });
-    final err = await context
-        .read<AuthService>()
-        .signInWithGoogle(referralCode: _refCtrl.text.trim());
-    if (err != null && mounted) {
+    final ok = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+          builder: (_) =>
+              OAuthWebViewScreen(referralCode: _refCtrl.text.trim())),
+    );
+    if (ok != true && mounted) {
       setState(() {
-        _error = err;
+        _error = 'Sign-up was not completed.';
         _loading = false;
       });
     }

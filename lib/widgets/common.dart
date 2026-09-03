@@ -175,3 +175,39 @@ void showSnack(BuildContext context, String message, {bool error = false}) {
     behavior: SnackBarBehavior.floating,
   ));
 }
+
+
+/// Centered icon + title + subtitle used for empty lists.
+class EmptyState extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  const EmptyState(
+      {super.key, required this.icon, this.title = '', this.subtitle = ''});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 48, color: AppColors.gray300),
+            const SizedBox(height: 12),
+            Text(title,
+                style: const TextStyle(
+                    fontWeight: FontWeight.w600, color: AppColors.gray600)),
+            if (subtitle.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(subtitle,
+                  textAlign: TextAlign.center,
+                  style:
+                      const TextStyle(fontSize: 12, color: AppColors.gray500)),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}

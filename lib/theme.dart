@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 class AppColors {
   static const primary50 = Color(0xFFEFF6FF);
   static const primary100 = Color(0xFFDBEAFE);
+  static const primary500 = Color(0xFF3B82F6);
   static const primary600 = Color(0xFF2563EB);
   static const primary700 = Color(0xFF1D4ED8);
   static const primary800 = Color(0xFF1E40AF);
@@ -14,6 +15,7 @@ class AppColors {
   static const gray50 = Color(0xFFF9FAFB);
   static const gray100 = Color(0xFFF3F4F6);
   static const gray200 = Color(0xFFE5E7EB);
+  static const gray300 = Color(0xFFD1D5DB);
   static const gray500 = Color(0xFF6B7280);
   static const gray600 = Color(0xFF4B5563);
   static const gray900 = Color(0xFF111827);
@@ -30,6 +32,7 @@ class AppColors {
   static const error50 = Color(0xFFFEF2F2);
   static const error100 = Color(0xFFFEE2E2);
   static const error600 = Color(0xFFDC2626);
+  static const danger600 = error600;
 
   /// The green used on the web dashboard for earnings / TOP JOB badges.
   static const earnGreen = Color(0xFF0E9F6E);
@@ -115,3 +118,28 @@ ThemeData buildAppTheme() {
 
 /// Format money exactly like the website: `$ 0.000`
 String fmtMoney(num? v) => '\$ ${(v ?? 0).toDouble().toStringAsFixed(3)}';
+
+/// Small friendly error extraction (matches UI copy on web).
+String friendlyError(Object e) {
+  final s = e.toString();
+  if (s.contains('duplicate')) return 'This was already submitted.';
+  if (s.contains('network') || s.contains('Socket')) {
+    return 'Network error. Please try again.';
+  }
+  return s.length > 140 ? '${s.substring(0, 140)}...' : s;
+}
+
+/// Format an ISO timestamp like `Aug 11, 3:45 PM`.
+String fmtDate(dynamic v) {
+  if (v == null) return '';
+  try {
+    final d = DateTime.parse(v.toString()).toLocal();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
+    final ampm = d.hour >= 12 ? 'PM' : 'AM';
+    final min = d.minute.toString().padLeft(2, '0');
+    return '${months[d.month - 1]} ${d.day}, $h:$min $ampm';
+  } catch (_) {
+    return v.toString();
+  }
+}

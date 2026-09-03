@@ -9,6 +9,13 @@ import '../auth/admin_login_screen.dart';
 import 'deposit_screen.dart';
 import 'post_job_screen.dart';
 import 'share_earn_screen.dart';
+import 'premium_screen.dart';
+import 'verify_screen.dart';
+import 'ticket_screen.dart';
+import 'live_chat_screen.dart';
+import 'advertisement_screen.dart';
+import 'deposit_history_screen.dart';
+import '../static/blog_screen.dart';
 import 'withdraw_screen.dart';
 
 /// Mirrors ProfilePage + the DashboardLayout sidebar links: balances,
@@ -215,7 +222,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           builder: (_) => const ShareEarnScreen()));
                 }),
                 if (p.isAdmin)
-                  _menuItem(Icons.admin_panel_settings_outlined,
+  
+                _menuItem(Icons.workspace_premium, 'Premium Membership',
+                    'Unlock premium-only jobs', () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const PremiumScreen()));
+                }),
+                _menuItem(Icons.verified_user, 'Verify Account',
+                    'Get the verified badge', () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const VerifyScreen()));
+                }),
+                _menuItem(Icons.support_agent, 'Support Tickets',
+                    'Ask support for help', () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const TicketScreen()));
+                }),
+                _menuItem(Icons.forum, 'Live Chat',
+                    'Chat with support in real time', () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const LiveChatScreen()));
+                }),
+                _menuItem(Icons.campaign, 'Advertise',
+                    'Promote your thing with our users', () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const AdvertisementScreen()));
+                }),
+                _menuItem(Icons.receipt_long, 'Deposit History',
+                    'All your deposit requests', () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const DepositHistoryScreen()));
+                }),
+                _menuItem(Icons.article_outlined, 'Blog & Guides',
+                    'Learn how to earn more', () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const BlogScreen()));
+                }),
+                _menuItem(Icons.admin_panel_settings_outlined,
                       'Admin Panel', 'Manage users, deposits, withdrawals',
                       () {
                     Navigator.push(
