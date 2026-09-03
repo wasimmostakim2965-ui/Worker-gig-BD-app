@@ -62,15 +62,15 @@ Every push to `main` runs `.github/workflows/build.yml` which produces:
 
 Download from: repo → Actions → latest successful run → Artifacts.
 
-## Before Play Store upload
+## Play Store upload
 
-1. Create an upload keystore (one-time; keep it SAFE) or enable
-   "Play App Signing" in Play Console (recommended):
-   `keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload`
-2. Add `android/key.properties` (gitignored) and wire it into
-   `android/app/build.gradle.kts` signing configs.
-3. Replace the default launcher icon (use `flutter_launcher_icons`).
-4. Bump `version:` in `pubspec.yaml` for every release.
+Release builds are already signed with the production keystore
+(`android/app/workergigbd.jks`, alias `workergigbd`) — credentials and the
+SHA-1/SHA-256 fingerprints are documented in README.md. The launcher icon
+is the real WORKER GIG BD logo (generated with flutter_launcher_icons).
+
+- Upload `app-release.aab` to Play Console; keep Play App Signing enabled.
+- Bump `version:` in `pubspec.yaml` for every release.
 
 ## iOS
 

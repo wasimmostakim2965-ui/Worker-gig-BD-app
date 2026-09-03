@@ -29,9 +29,10 @@ jobs:
 
       - run: flutter analyze
 
-      # Release builds are signed with the debug key until an upload
-      # keystore is configured (see NOTES.md). Fine for testing; Play Store
-      # upload requires proper signing.
+      # Signed release builds: Gradle loads android/key.properties and signs
+      # with android/app/workergigbd.jks (production keystore). The APK is a
+      # universal standalone build (all ABIs, no splits) — uploadable to any
+      # store. The AAB is for Google Play.
       - run: flutter build apk --release
 
       - run: flutter build appbundle --release
