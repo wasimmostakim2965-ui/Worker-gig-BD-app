@@ -52,6 +52,10 @@ android {
                 keyPassword = keystoreProperties["keyPassword"] as String
                 storeFile = keystoreProperties["storeFile"]?.let { file(it) }
                 storePassword = keystoreProperties["storePassword"] as String
+                // v1 (JAR) signing বাধ্যতামূলক — minSdk 21 হওয়ায় Android 5/6
+                // ডিভাইস v2-only APK ইনস্টল করতে পারে না।
+                enableV1Signing = true
+                enableV2Signing = true
             }
         }
     }
