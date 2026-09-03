@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,24 +28,71 @@ jobs:
           channel: stable
           cache: true
 
+      # Keystore পাবলিক রিপোতে রাখা হয় না — GitHub Secrets থেকে আসে
+      # (Settings → Secrets and variables → Actions)।
+      - name: Prepare signing keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/workergigbd.jks
+          cat > android/key.properties <<EOF
+          storePassword=$KEYSTORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=workergigbd.jks
+          EOF
+
       - run: flutter pub get
 
       - run: flutter analyze
 
-      # Signed release builds: Gradle loads android/key.properties and signs
-      # with android/app/workergigbd.jks (production keystore). The APK is a
-      # universal standalone build (all ABIs, no splits) — uploadable to any
-      # store. The AAB is for Google Play.
+      # Signed release builds: Gradle loads android/key.properties (written
+      # above from secrets). The APK is a universal standalone build (all
+      # ABIs, no splits) — uploadable to any store. The AAB is for Google Play.
       - run: flutter build apk --release
 
       - run: flutter build appbundle --release
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+      # সহজ নামে রিনেম করি — ডাউনলোডের পর চিনতে/শেয়ার করতে সুবিধা হয়।
+      - name: Prepare release files
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d'+' -f1)
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          mkdir -p release-out
+          cp build/app/outputs/flutter-apk/app-release.apk "release-out/Worker-Gig-BD-v${VERSION}.apk"
+          cp build/app/outputs/bundle/release/app-release.aab "release-out/Worker-Gig-BD-v${VERSION}.aab"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: app-release-aab
-          path: build/app/outputs/bundle/release/app-release.aab
+          name: Worker-Gig-BD-apk
+          path: release-out/Worker-Gig-BD-*.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Worker-Gig-BD-aab
+          path: release-out/Worker-Gig-BD-*.aab
+
+      # সরাসরি APK ডাউনলোড লিংক (ZIP নয়):
+      # https://github.com/wasimmostakim2965-ui/Worker-gig-BD-app/releases
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Worker Gig BD — Latest Build
+          body: |
+            ## 📱 ডাউনলোড
+
+            | ফাইল | কীসের জন্য |
+            |---|---|
+            | **Worker-Gig-BD-v${{ env.VERSION }}.apk** | ফোনে সরাসরি ইনস্টল / যেকোনো অ্যাপ স্টোর (APKPure, APKCombo ইত্যাদি) |
+            | **Worker-Gig-BD-v${{ env.VERSION }}.aab** | শুধু Google Play Console-এ আপলোড |
+
+            APK ফাইলটা সরাসরি ডাউনলোড হয় — কোনো ZIP/extract করতে হয় না।
+            Telegram/WhatsApp-এ ফাইল না পাঠিয়ে এই রিলিজ পেজের **লিংক** শেয়ার করুন।
+
+            > প্রোডাকশন keystore দিয়ে সাইনড (GitHub Secrets থেকে)।
+          files: release-out/*
+          make_latest: true
