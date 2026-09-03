@@ -89,6 +89,49 @@ flutter build appbundle --release # signed AAB (Play Store)
       APK decompile করলেও সোর্স পড়া যায় না।
 - [x] **Permissions** — শুধু প্রয়োজনীয় পারমিশন (Internet, Camera/Gallery
       শুধু proof upload-এর জন্য)।
+- [x] **Android version support** — **minSdk 21 (Android 5.0 Lollipop)**
+      থেকে **targetSdk 35 (Android 15)** পর্যন্ত: Android 5/6/7/8/9/10/11/
+      12/13/14/15 সব ভার্সনে ইনস্টল ও চলবে। Flutter এই রেঞ্জের সব ভার্সন
+      সাপোর্ট করে, আলাদা কিছু করতে হয় না।
+
+---
+
+## 📲 Android Version সাপোর্ট
+
+| Android Version | API Level | সাপোর্ট |
+|---|---|---|
+| Android 5.0 – 6.x (Lollipop/Marshmallow) | 21–23 | ✅ |
+| Android 7 – 8.x (Nougat/Oreo) | 24–27 | ✅ |
+| Android 9 – 10 (Pie/Q) | 28–29 | ✅ |
+| Android 11 – 12 | 30–32 | ✅ |
+| Android 13 – 14 | 33–34 | ✅ |
+| Android 15 | 35 | ✅ (targetSdk) |
+
+একটাই universal APK সব ভার্সনে চলে — ভার্সন অনুযায়ী আলাদা ফাইল লাগে না।
+
+---
+
+## ⚠️ Telegram/WhatsApp-এ APK শেয়ার করলে হাইড হয় — সমাধান
+
+**কেন হয়:** WhatsApp/Telegram/Gmail-এ পাঠানো `.apk` ফাইলগুলো এই প্ল্যাটফর্মগুলো
+নিজেদের সেকিউরিটি পলিসির কারণে (malware ছড়ানো রোধে) ব্লক বা ওয়ার্নিং দিয়ে
+হাইড করে দেয় — এটা আমাদের APK-র সমস্যা **না**, যেকোনো APK-র ক্ষেত্রেই হয়।
+
+**সঠিক উপায়গুলো:**
+
+1. **ওয়েবসাইট থেকে ডাউনলোড (সবচেয়ে ভালো):** APK-টা আপনার
+   workergigbd.site সাইটে হোস্ট করুন (Vercel/Supabase Storage-এ) এবং সবাইকে
+   শুধু লিংক দিন, যেমন:
+   `https://workergigbd.site/download/workergigbd.apk`
+   ব্রাউজার থেকে ডাউনলোড করলে কোনো হাইড/ব্লক হয় না।
+2. **GitHub Releases:** এই রিপোর Releases-এ APK আপলোড করে পাবলিক ডাউনলোড
+   লিংক দিন — Telegram/WhatsApp-এ লিংক শেয়ার করলে কাজ করে।
+3. **Google Drive/Dropbox লিংক:** APK আপলোড করে "Anyone with the link"
+   শেয়ার দিন — ফাইল ডাইরেক্ট শেয়ার না করে লিংক শেয়ার করলে হাইড হয় না।
+
+**মূল নিয়ম:** APK ফাইল সরাসরি না পাঠিয়ে **ডাউনলোড লিংক** পাঠান।
+ইউজার ব্রাউজার থেকে ডাউনলোড করে Install unknown apps পারমিশন দিয়ে
+ইনস্টল করবে — এটাই স্ট্যান্ডার্ড।
 
 ### থার্ড-পার্টি স্টোরে আপলোড নোট
 

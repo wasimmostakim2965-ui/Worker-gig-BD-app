@@ -33,6 +33,8 @@ android {
         applicationId = "com.workergigbd.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
+        // Android 5.0 (API 21) তে সাপোর্ট — ~99% ডিভাইস কভারেজ;
+        // পুরনো ফোনের ইউজাররাও ইনস্টল করতে পারবেন।
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
