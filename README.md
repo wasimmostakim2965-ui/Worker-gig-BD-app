@@ -3,38 +3,34 @@
 Native Flutter app for [workergigbd.site](https://workergigbd.site).
 Same backend as the website (Supabase) — same tables, same RPCs, same rules.
 
-> ⚠️ **এই রিপোটা অবশ্যই PRIVATE রাখবেন।** নিচে production keystore-এর
-> ক্রেডেনশিয়াল আছে — পাবলিক করলে যে কেউ আপনার অ্যাপের নামে ভুয়া আপডেট
-> ছাড়তে পারবে।
+> 🔐 **Signing keystore এখন আর রিপোতে নেই** — GitHub Secrets-এ নিরাপদে আছে
+> (Settings → Secrets and variables → Actions)। CI সেখান থেকে নিয়ে প্রতিটি
+> বিল্ড সাইন করে। keystore ফাইল আর পাসওয়ার্ড অফলাইনে (নিজের কাছে) ব্যাকআপ
+> রাখুন — হারালে অ্যাপ আপডেট দেওয়া যাবে না।
 
 ---
 
-## 🔑 Keystore Credentials (অ্যাপ আপডেটের জন্য বাধ্যতামূলক)
+## 🔑 Signing Setup (সেপ্টেম্বর ২০২৬-এ keystore রোটেট করা হয়েছে)
 
-| Item | Value |
-|---|---|
-| **Keystore file** | `android/app/workergigbd.jks` |
-| **Key alias** | `workergigbd` |
-| **Store password** | `Wasim@2965` |
-| **Key password** | `Wasim@2965` |
-| **Certificate validity** | 10,000 days (~27 বছর) |
-| **Key algorithm** | RSA 2048-bit |
+আগের keystore (`Wasim@2965`) রিপো পাবলিক থাকায় লিক হয়ে গিয়েছিল, তাই
+**নতুন keystore** বানানো হয়েছে (RSA 4096-bit, ~৩০ বছর validity)। পুরনো
+সার্টিফিকেট দিয়ে সাইনড অ্যাপ আর আপডেট পাবে না — পুরনো ইনস্টল থাকলে
+আগে uninstall করে নতুন APK ইনস্টল করতে হবে।
 
-ক্রেডেনশিয়ালগুলো `android/key.properties`-এও আছে — Gradle স্বয়ংক্রিয়ভাবে
-প্রতিটি release বিল্ডে এগুলো দিয়ে সাইন করে।
+- Keystore: শুধু **GitHub Secrets**-এ (`ANDROID_KEYSTORE_BASE64`,
+  `KEYSTORE_PASSWORD`, `KEY_PASSWORD`, `KEY_ALIAS`) — রিপোতে কোনো
+  ক্রেডেনশিয়াল নেই।
+- লোকালে সাইনড বিল্ড চাইলে নিজের কাছে থাকা `.jks` রেখে
+  `android/key.properties` বানান (`.gitignore`-এ আছে, commit হবে না)।
+- `key.properties` না থাকলে release বিল্ড debug key দিয়ে সাইন হয় —
+  সেটা শুধু টেস্টের জন্য, স্টোরে দেবেন না।
 
-### Signing Certificate Fingerprints (Google Play / Firebase-এ লাগবে)
+### Signing Certificate Fingerprints — নতুন keystore (Google Play / Firebase-এ লাগবে)
 
 | Hash | Value |
 |---|---|
-| **SHA-1** | `a5:36:49:f2:d3:5e:80:a6:ce:9a:32:ff:3b:ea:9c:de:f3:e6:07:99` |
-| **SHA-256** | `14:57:a0:95:8a:48:85:38:8f:14:c0:52:2a:da:ac:c9:c5:bb:0a:f0:5a:11:9d:8c:b9:2f:be:94:64:ff:54:89` |
-
-ফিঙ্গারপ্রিন্ট আবার বের করতে:
-```bash
-keytool -list -v -keystore android/app/workergigbd.jks \
-  -alias workergigbd -storepass 'Wasim@2965'
-```
+| **SHA-1** | `A0:D1:AA:C2:9E:64:83:8F:6E:F5:75:18:1A:E6:09:09:A0:C0:BE:5B` |
+| **SHA-256** | `D9:85:15:B7:BF:54:C8:EB:D9:84:3E:BD:22:66:66:2B:6B:D4:BB:56:89:B0:E2:79:93:FE:45:39:56:20:57:84` |
 
 ### ⚠️ Google Sign-In সেটআপ (একবার করতে হবে)
 
@@ -44,7 +40,7 @@ Google Cloud Console-এ যোগ করতে হবে:
 1. [Google Cloud Console](https://console.cloud.google.com/apis/credentials) →
    Credentials → **Create OAuth Client ID → Android**
 2. Package name: `com.workergigbd.app`
-3. SHA-1: `a5:36:49:f2:d3:5e:80:a6:ce:9a:32:ff:3b:ea:9c:de:f3:e6:07:99`
+3. SHA-1: `A0:D1:AA:C2:9E:64:83:8F:6E:F5:75:18:1A:E6:09:09:A0:C0:BE:5B`
 4. তৈরি হওয়া **Android Client ID** কপি করে Supabase Dashboard →
    Authentication → Providers → Google → **Authorized Client IDs**-তে
    (comma দিয়ে) যোগ করুন।
@@ -55,13 +51,20 @@ Google Cloud Console-এ যোগ করতে হবে:
 
 ## 📦 Builds (GitHub Actions)
 
-প্রতিটি `main` push-ে CI স্বয়ংক্রিয়ভাবে বানায় (Actions → latest run →
-Artifacts):
+প্রতিটি `main` push-ে CI স্বয়ংক্রিয়ভাবে বিল্ড করে **GitHub Release**-এ
+সরাসরি APK/AAB দিয়ে দেয়:
 
-| Artifact | কী | কোথায় ব্যবহার |
+➡️ **ডাউনলোড:** [Releases পেজ](https://github.com/wasimmostakim2965-ui/Worker-gig-BD-app/releases)
+— `Worker-Gig-BD-vX.Y.Z.apk` ফাইলে ক্লিক করলেই **সরাসরি APK ডাউনলোড**
+হয় (কোনো ZIP/extract লাগে না)।
+
+| ফাইল | কী | কোথায় ব্যবহার |
 |---|---|---|
-| `app-release-apk` | **Signed universal APK** (`.apk`) — সব ABI এক ফাইলে, কোনো split নেই | Play Store ছাড়া সব স্টোর (APKPure, APKCombo, Huawei AppGallery, Samsung Galaxy Store, Amazon Appstore, সরাসরি ওয়েবসাইট ডাউনলোড) |
-| `app-release-aab` | Signed App Bundle (`.aab`) | **শুধু Google Play Console** |
+| `Worker-Gig-BD-vX.Y.Z.apk` | **Signed universal APK** — সব ABI এক ফাইলে, কোনো split নেই | ফোনে সরাসরি ইনস্টল + Play Store ছাড়া সব স্টোর (APKPure, APKCombo, Huawei AppGallery, Samsung Galaxy Store, Amazon Appstore, ওয়েবসাইট ডাউনলোড) |
+| `Worker-Gig-BD-vX.Y.Z.aab` | Signed App Bundle | **শুধু Google Play Console** |
+
+Actions → Artifacts-এও ফাইল থাকে, তবে GitHub-এর নিয়মে সেটা সবসময়
+ZIP আকারে আসে — সরাসরি APK চাইলে **Releases** ব্যবহার করুন।
 
 ম্যানুয়ালি বিল্ড করতে:
 ```bash
@@ -77,12 +80,13 @@ flutter build appbundle --release # signed AAB (Play Store)
       সাইনড; debug/unsigned নয়।
 - [x] **Universal standalone APK** — কোনো ABI split / Play Asset Delivery
       ডিপেনডেন্সি নেই; যেকোনো স্টোরে সরাসরি আপলোড হয়।
-- [x] **Keystore + credentials** — এই ফাইলে উপরে দেওয়া (`.jks` রিপোতেই আছে)।
+- [x] **Keystore নিরাপদ** — রিপোতে কোনো keystore/পাসওয়ার্ড নেই; শুধু
+      GitHub Secrets-এ (CI সেখান থেকে সাইন করে)।
 - [x] **Target SDK** — Flutter 3.35.4 → **targetSdk 35 (Android 15)**,
       Play Store-এর 2025 রিকোয়ারমেন্ট পূরণ করে।
 - [x] **Package name** — `com.workergigbd.app` (ইউনিক, ওয়েবসাইটের ডোমেইনের
       সাথে মিলিয়ে)।
-- [x] **Extension** — APK আর্টিফ্যাক্ট `app-release.apk` নামেই আসে
+- [x] **সরাসরি APK ডাউনলোড** — Releases-এ `.apk` হিসেবেই আসে
       (`.zip` নয়)।
 - [x] **Code protection** — release বিল্ডে R8/ProGuard minify +
       resource shrink + obfuscation চালু (`proguard-rules.pro`) —
@@ -124,8 +128,9 @@ flutter build appbundle --release # signed AAB (Play Store)
    শুধু লিংক দিন, যেমন:
    `https://workergigbd.site/download/workergigbd.apk`
    ব্রাউজার থেকে ডাউনলোড করলে কোনো হাইড/ব্লক হয় না।
-2. **GitHub Releases:** এই রিপোর Releases-এ APK আপলোড করে পাবলিক ডাউনলোড
-   লিংক দিন — Telegram/WhatsApp-এ লিংক শেয়ার করলে কাজ করে।
+2. **GitHub Releases (অটোমেটিক):** প্রতিটি বিল্ডে APK নিজে থেকেই
+   [Releases](https://github.com/wasimmostakim2965-ui/Worker-gig-BD-app/releases)-এ
+   চলে আসে — সেই পেজের লিংক বা APK ফাইলের ডাইরেক্ট লিংক শেয়ার করুন।
 3. **Google Drive/Dropbox লিংক:** APK আপলোড করে "Anyone with the link"
    শেয়ার দিন — ফাইল ডাইরেক্ট শেয়ার না করে লিংক শেয়ার করলে হাইড হয় না।
 
@@ -133,10 +138,25 @@ flutter build appbundle --release # signed AAB (Play Store)
 ইউজার ব্রাউজার থেকে ডাউনলোড করে Install unknown apps পারমিশন দিয়ে
 ইনস্টল করবে — এটাই স্ট্যান্ডার্ড।
 
+## 🛡️ ইনস্টলের সময় Play Protect ওয়ার্নিং ("Install anyway")
+
+Play Store-এর বাইরে থেকে (sideload) ইনস্টল করা **যেকোনো** অ্যাপে Google
+Play Protect "Unsafe app blocked" / "App might be harmful" টাইপ ওয়ার্নিং
+দেখায় — কারণ অ্যাপটা Google-এর কাছে অপরিচিত (নতুন, ইনস্টল কম)। এটা
+আমাদের APK-র ত্রুটি নয়; "More details → **Install anyway**" চাপলেই
+ইনস্টল হয়। সময়ের সাথে সাথে কমে যায়:
+
+- APK সবসময় **একই keystore** দিয়ে সাইনড রাখুন (CI এখন secrets থেকে
+  একই key দিয়ে সাইন করে)।
+- অ্যাপ **Google Play**-এ ছাড়ুন (internal/closed track হলেও) — Play
+  Protect তখন সার্টিফিকেটটা চিনে ফেলে।
+- ইউজারদের ব্রাউজার থেকে ডাউনলোড করাতে বলুন, থার্ড-পার্টি ফাইল
+  ম্যানেজার থেকে নয়।
+
 ### থার্ড-পার্টি স্টোরে আপলোড নোট
 
-- **APKPure / APKCombo / APKMonk**: `app-release.apk` সরাসরি আপলোড
-  করুন — কোনো পরিবর্তন লাগবে না।
+- **APKPure / APKCombo / APKMonk**: Releases থেকে নেওয়া
+  `Worker-Gig-BD-vX.Y.Z.apk` সরাসরি আপলোড করুন — কোনো পরিবর্তন লাগবে না।
 - **Huawei AppGallery**: APK আপলোড হয়; Google Sign-In Huawei ফোনে
   (GMS ছাড়া) কাজ নাও করতে পারে — সেক্ষেত্রে email login পথ আছে।
 - **Samsung Galaxy Store / Amazon Appstore**: signed APK আপলোড করুন;

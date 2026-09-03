@@ -55,19 +55,26 @@ com.workergigbd.app://login-callback/
 
 ## Build (GitHub Actions — no local setup needed)
 
-Every push to `main` runs `.github/workflows/build.yml` which produces:
+Every push to `main` runs `.github/workflows/build.yml` which:
 
-- `app-release-apk` — installable test APK
-- `app-release-aab` — Play Store upload format
+1. Rebuilds the signing keystore from GitHub Secrets
+   (`ANDROID_KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_PASSWORD`,
+   `KEY_ALIAS`) — no keystore or password lives in the repo.
+2. Builds a signed universal APK + signed AAB.
+3. Publishes both to the rolling **`latest` GitHub Release** as
+   `Worker-Gig-BD-vX.Y.Z.apk` / `.aab` — direct download, no ZIP.
 
-Download from: repo → Actions → latest successful run → Artifacts.
+Download from: repo → **Releases** (Actions artifacts also exist, but
+GitHub always zips those).
 
 ## Play Store upload
 
-Release builds are already signed with the production keystore
-(`android/app/workergigbd.jks`, alias `workergigbd`) — credentials and the
-SHA-1/SHA-256 fingerprints are documented in README.md. The launcher icon
-is the real WORKER GIG BD logo (generated with flutter_launcher_icons).
+Release builds are signed with the production keystore held in GitHub
+Secrets (rotated Sep 2026 after the old key leaked in the public repo —
+old installs must be uninstalled before installing the new APK). The
+SHA-1/SHA-256 fingerprints of the new key are documented in README.md.
+The launcher icon is the real WORKER GIG BD logo (generated with
+flutter_launcher_icons).
 
 - Upload `app-release.aab` to Play Console; keep Play App Signing enabled.
 - Bump `version:` in `pubspec.yaml` for every release.
