@@ -8,7 +8,6 @@ import '../services/auth_service.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 import 'auth/login_screen.dart';
-import 'auth/oauth_webview_screen.dart';
 import 'auth/signup_screen.dart';
 import 'static/blog_screen.dart';
 import 'static/contact_screen.dart';
@@ -91,18 +90,14 @@ class _LandingScreenState extends State<LandingScreen> {
       _googleError = null;
       _googleLoading = true;
     });
-    // Google sign-in happens INSIDE the app — never the external browser.
-    final ok = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(builder: (_) => const OAuthWebViewScreen()),
-    );
-    if (mounted && ok != true) {
+    final err =
+        await context.read<AuthService>().signInWithGoogle();
+    if (mounted) {
       setState(() {
-        _googleError = 'Sign-in was not completed.';
+        _googleError =
+            (err == 'Sign-in cancelled.' || err == null) ? null : err;
         _googleLoading = false;
       });
-    } else if (mounted) {
-      setState(() => _googleLoading = false);
     }
   }
 
@@ -123,10 +118,11 @@ class _LandingScreenState extends State<LandingScreen> {
           // ---- Navbar (pinned, white, logo + Login + Get Started) ----
           SliverAppBar(
             pinned: true,
-            backgroundColor: Colors.white.withValues(alpha: 0.92),
+            backgroundColor: Colors.white.withValues(alpha: 0.95),
             surfaceTintColor: Colors.white,
             elevation: 0.5,
-            title: const WGLogo(size: 40),
+            titleSpacing: 16,
+            title: const WGLogo(size: 38),
             actions: [
               TextButton(
                 onPressed: _goLogin,
@@ -137,15 +133,17 @@ class _LandingScreenState extends State<LandingScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 12),
-                child: FilledButton.icon(
+                child: FilledButton(
                   onPressed: _goSignup,
-                  icon: const Icon(Icons.arrow_forward, size: 16),
-                  label: const Text('Get Started'),
                   style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.primary100,
+                    foregroundColor: AppColors.primary700,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 8),
+                        horizontal: 16, vertical: 10),
                     minimumSize: Size.zero,
                   ),
+                  child: const Text('Get Started',
+                      style: TextStyle(fontWeight: FontWeight.w700)),
                 ),
               ),
             ],

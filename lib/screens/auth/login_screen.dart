@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../services/auth_service.dart';
 
-import 'oauth_webview_screen.dart';
+
 import '../../widgets/common.dart';
 import 'signup_screen.dart';
 
@@ -21,14 +23,10 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
       _loading = true;
     });
-    // Open Google sign-in INSIDE the app — never the external browser.
-    final ok = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(builder: (_) => const OAuthWebViewScreen()),
-    );
-    if (ok != true && mounted) {
+    final err = await context.read<AuthService>().signInWithGoogle();
+    if (err != null && mounted) {
       setState(() {
-        _error = 'Sign-in was not completed.';
+        _error = err == 'Sign-in cancelled.' ? '' : err;
         _loading = false;
       });
     }

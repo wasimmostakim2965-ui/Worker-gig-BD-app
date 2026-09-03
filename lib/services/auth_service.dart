@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import '../theme.dart';
 
-import '../config.dart';
 import '../models.dart';
 
 /// Auth + profile state, mirroring the website's AuthContext:
@@ -83,50 +84,28 @@ class AuthService extends ChangeNotifier {
     if (u != null) await _loadProfile(u.id);
   }
 
-  /// Google sign-in/sign-up (same OAuth flow as the website).
-  /// Builds the Google OAuth URL. The UI opens it inside an in-app WebView
-  /// (never leaves the app for the browser) and hands the callback back.
-  Future<Uri> getGoogleSignInUrl({String? referralCode}) async {
-    final res = await client.auth.getOAuthSignInUrl(
-      provider: OAuthProvider.google,
-      redirectTo: AppConfig.oauthRedirect,
-      queryParams:
-          referralCode != null && referralCode.isNotEmpty
-              ? {'ref': referralCode}
-              : null,
-    );
-    return Uri.parse(res.url);
-  }
+  /// Google sign-in/sign-up using the native google_sign_in plugin.
+  /// Tapping the button opens Google's account picker (list of the Gmail
+  /// accounts on the phone) — no password typing, no browser, no WebView.
+  final _google = GoogleSignIn(scopes: ['openid', 'email', 'profile']);
 
-  /// Completes sign-in from the OAuth deep-link callback (PKCE exchange).
-  Future<String?> completeOAuthSignIn(Uri uri) async {
-    try {
-      await client.auth.exchangeCodeForSession(uri.toString());
-      return null;
-    } on AuthException catch (e) {
-      return e.message;
-    } catch (e) {
-      return '$e';
-    }
-  }
-
-  /// Kept for API compatibility — prefer the in-app WebView flow above.
   Future<String?> signInWithGoogle({String? referralCode}) async {
     try {
-      await client.auth.signInWithOAuth(
-        OAuthProvider.google,
-        redirectTo: AppConfig.oauthRedirect,
-        authScreenLaunchMode: LaunchMode.inAppWebView,
-        queryParams:
-            referralCode != null && referralCode.isNotEmpty
-                ? {'ref': referralCode}
-                : null,
+      final account = await _google.signIn();
+      if (account == null) return 'Sign-in cancelled.';
+      final auth = await account.authentication;
+      final idToken = auth.idToken;
+      if (idToken == null) return 'Google did not return an ID token.';
+      await client.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: auth.accessToken,
       );
       return null;
     } on AuthException catch (e) {
       return e.message;
     } catch (e) {
-      return '$e';
+      return friendlyError(e);
     }
   }
 

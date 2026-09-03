@@ -32,6 +32,14 @@ android {
 
     buildTypes {
         release {
+            // R8/ProGuard: shrinks and obfuscates the app's bytecode so the
+            // source code can't be read from the released APK/AAB.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")

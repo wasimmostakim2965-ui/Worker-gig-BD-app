@@ -30,12 +30,14 @@ class WorkerGigApp extends StatefulWidget {
 
 class _WorkerGigAppState extends State<WorkerGigApp> {
   late final AuthService auth = AuthService()..init();
+  final _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: auth,
       child: MaterialApp(
+        navigatorKey: _navigatorKey,
         title: AppConfig.appName,
         debugShowCheckedModeBanner: false,
         theme: buildAppTheme(),
