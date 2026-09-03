@@ -55,13 +55,19 @@ Google Cloud Console-এ যোগ করতে হবে:
 সরাসরি APK/AAB দিয়ে দেয়:
 
 ➡️ **ডাউনলোড:** [Releases পেজ](https://github.com/wasimmostakim2965-ui/Worker-gig-BD-app/releases)
-— `Worker-Gig-BD-vX.Y.Z.apk` ফাইলে ক্লিক করলেই **সরাসরি APK ডাউনলোড**
+— `Worker-Gig-BD.apk` ফাইলে ক্লিক করলেই **সরাসরি APK ডাউনলোড**
 হয় (কোনো ZIP/extract লাগে না)।
+
+🔗 **স্থায়ী ডাইরেক্ট লিংক** (ভার্সন বদলালেও বদলায় না — Telegram/WhatsApp/
+ওয়েবসাইটে এই লিংকটাই শেয়ার করুন):
+```
+https://github.com/wasimmostakim2965-ui/Worker-gig-BD-app/releases/latest/download/Worker-Gig-BD.apk
+```
 
 | ফাইল | কী | কোথায় ব্যবহার |
 |---|---|---|
-| `Worker-Gig-BD-vX.Y.Z.apk` | **Signed universal APK** — সব ABI এক ফাইলে, কোনো split নেই | ফোনে সরাসরি ইনস্টল + Play Store ছাড়া সব স্টোর (APKPure, APKCombo, Huawei AppGallery, Samsung Galaxy Store, Amazon Appstore, ওয়েবসাইট ডাউনলোড) |
-| `Worker-Gig-BD-vX.Y.Z.aab` | Signed App Bundle | **শুধু Google Play Console** |
+| `Worker-Gig-BD.apk` | **Signed universal APK** — সব ABI এক ফাইলে, কোনো split নেই | ফোনে সরাসরি ইনস্টল + Play Store ছাড়া সব স্টোর (APKPure, APKCombo, Huawei AppGallery, Samsung Galaxy Store, Amazon Appstore, ওয়েবসাইট ডাউনলোড) |
+| `Worker-Gig-BD.aab` | Signed App Bundle | **শুধু Google Play Console** |
 
 Actions → Artifacts-এও ফাইল থাকে, তবে GitHub-এর নিয়মে সেটা সবসময়
 ZIP আকারে আসে — সরাসরি APK চাইলে **Releases** ব্যবহার করুন।
@@ -156,7 +162,7 @@ Play Protect "Unsafe app blocked" / "App might be harmful" টাইপ ওয�
 ### থার্ড-পার্টি স্টোরে আপলোড নোট
 
 - **APKPure / APKCombo / APKMonk**: Releases থেকে নেওয়া
-  `Worker-Gig-BD-vX.Y.Z.apk` সরাসরি আপলোড করুন — কোনো পরিবর্তন লাগবে না।
+  `Worker-Gig-BD.apk` সরাসরি আপলোড করুন — কোনো পরিবর্তন লাগবে না।
 - **Huawei AppGallery**: APK আপলোড হয়; Google Sign-In Huawei ফোনে
   (GMS ছাড়া) কাজ নাও করতে পারে — সেক্ষেত্রে email login পথ আছে।
 - **Samsung Galaxy Store / Amazon Appstore**: signed APK আপলোড করুন;

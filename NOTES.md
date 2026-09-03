@@ -62,7 +62,7 @@ Every push to `main` runs `.github/workflows/build.yml` which:
    `KEY_ALIAS`) — no keystore or password lives in the repo.
 2. Builds a signed universal APK + signed AAB.
 3. Publishes both to the rolling **`latest` GitHub Release** as
-   `Worker-Gig-BD-vX.Y.Z.apk` / `.aab` — direct download, no ZIP.
+   `Worker-Gig-BD.apk` / `.aab` — direct download, no ZIP.
 
 Download from: repo → **Releases** (Actions artifacts also exist, but
 GitHub always zips those).
