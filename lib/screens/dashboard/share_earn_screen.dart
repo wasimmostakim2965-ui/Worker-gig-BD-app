@@ -32,8 +32,9 @@ class _ShareEarnScreenState extends State<ShareEarnScreen> {
       final db = Supabase.instance.client;
       final settings = await db.from('admin_settings').select();
       final bonus = settings.firstWhere(
-          (s) => s['key'] == 'referral_bonus',
-          orElse: () => {'value': ''})['value'];
+        (s) => s['key'] == 'referral_bonus',
+        orElse: () => {'value': ''},
+      )['value'];
       if (!mounted) return;
       final profile = context.read<AuthService>().profile;
       var count = 0;
@@ -80,19 +81,26 @@ class _ShareEarnScreenState extends State<ShareEarnScreen> {
                   ),
                   child: Column(
                     children: [
-                      const Icon(Icons.card_giftcard,
-                          color: Colors.white, size: 40),
+                      const Icon(
+                        Icons.card_giftcard,
+                        color: Colors.white,
+                        size: 40,
+                      ),
                       const SizedBox(height: 12),
-                      const Text('Invite Friends, Earn Bonus',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800)),
+                      const Text(
+                        'Invite Friends, Earn Bonus',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                       if (_bonus.isNotEmpty) ...[
                         const SizedBox(height: 6),
-                        Text('Earn \$$_bonus for every friend who joins!',
-                            style: const TextStyle(
-                                color: AppColors.primary100)),
+                        Text(
+                          'Earn \$$_bonus for every friend who joins!',
+                          style: const TextStyle(color: AppColors.primary100),
+                        ),
                       ],
                     ],
                   ),
@@ -104,9 +112,13 @@ class _ShareEarnScreenState extends State<ShareEarnScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Your Referral Code',
-                            style: TextStyle(
-                                fontSize: 12, color: AppColors.gray500)),
+                        const Text(
+                          'Your Referral Code',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.gray500,
+                          ),
+                        ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -117,18 +129,20 @@ class _ShareEarnScreenState extends State<ShareEarnScreen> {
                                   color: AppColors.gray100,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: Text(code,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 18,
-                                        letterSpacing: 2)),
+                                child: Text(
+                                  code,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 18,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
                               ),
                             ),
                             IconButton(
                               icon: const Icon(Icons.copy),
                               onPressed: () {
-                                Clipboard.setData(
-                                    ClipboardData(text: code));
+                                Clipboard.setData(ClipboardData(text: code));
                                 showSnack(context, 'Code copied');
                               },
                             ),
@@ -136,10 +150,16 @@ class _ShareEarnScreenState extends State<ShareEarnScreen> {
                         ),
                         const SizedBox(height: 12),
                         FilledButton.icon(
-                          onPressed: () => SharePlus.instance.share(
-                              ShareParams(
+                          onPressed: () async {
+                            try {
+                              await SharePlus.instance.share(
+                                ShareParams(
                                   text:
-                                      'Join WORKER GIG BD and earn money online! Use my referral code $code: $link')),
+                                      'Join WORKER GIG BD and earn money online! Use my referral code $code: $link',
+                                ),
+                              );
+                            } catch (_) {}
+                          },
                           icon: const Icon(Icons.share, size: 18),
                           label: const Text('Share Referral Link'),
                         ),
@@ -154,11 +174,17 @@ class _ShareEarnScreenState extends State<ShareEarnScreen> {
                       backgroundColor: AppColors.success50,
                       child: Icon(Icons.people, color: AppColors.success600),
                     ),
-                    title: const Text('Total Referrals',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
-                    trailing: Text('$_referralCount',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w800, fontSize: 18)),
+                    title: const Text(
+                      'Total Referrals',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    trailing: Text(
+                      '$_referralCount',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
                 ),
               ],

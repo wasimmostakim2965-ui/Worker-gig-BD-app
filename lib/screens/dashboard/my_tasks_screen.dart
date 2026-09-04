@@ -28,7 +28,10 @@ class _MyTasksScreenState extends State<MyTasksScreen> {
 
   Future<void> _load() async {
     final profile = context.read<AuthService>().profile;
-    if (profile == null) return;
+    if (profile == null) {
+      setState(() => _loading = false);
+      return;
+    }
     setState(() => _loading = true);
     try {
       final rows = await Supabase.instance.client

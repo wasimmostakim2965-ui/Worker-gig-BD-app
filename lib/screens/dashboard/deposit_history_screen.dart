@@ -60,7 +60,7 @@ class _DepositHistoryScreenState extends State<DepositHistoryScreen> {
                           leading: const Icon(Icons.account_balance_wallet,
                               color: AppColors.primary600),
                           title: Text(
-                              '৳${(r['amount'] as num?)?.toStringAsFixed(2) ?? '0.00'}',
+                              '৳${fmt2(r['amount'])}',
                               style:
                                   const TextStyle(fontWeight: FontWeight.w700)),
                           subtitle: Text(

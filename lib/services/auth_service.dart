@@ -122,7 +122,11 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    await client.auth.signOut();
+    try {
+      await client.auth.signOut();
+    } catch (e) {
+      debugPrint('Sign out error: $e');
+    }
     profile = null;
     user = null;
     notifyListeners();

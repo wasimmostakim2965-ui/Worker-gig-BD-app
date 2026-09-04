@@ -42,31 +42,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-                controller: nameCtrl,
-                decoration: const InputDecoration(labelText: 'Full Name')),
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'Full Name'),
+            ),
             const SizedBox(height: 12),
             TextField(
-                controller: phoneCtrl,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(labelText: 'Phone')),
+              controller: phoneCtrl,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(labelText: 'Phone'),
+            ),
           ],
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Save')),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Save'),
+          ),
         ],
       ),
     );
     if (saved == true) {
       try {
-        await Supabase.instance.client.from('profiles').update({
-          'full_name': nameCtrl.text.trim(),
-          'phone': phoneCtrl.text.trim(),
-        }).eq('id', profile.id);
+        await Supabase.instance.client
+            .from('profiles')
+            .update({
+              'full_name': nameCtrl.text.trim(),
+              'phone': phoneCtrl.text.trim(),
+            })
+            .eq('id', profile.id);
         await auth.refreshProfile();
         if (mounted) showSnack(context, 'Profile updated');
       } catch (e) {
@@ -109,14 +116,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               : null,
                           child: p.avatarUrl.isEmpty
                               ? Text(
-                                  (p.username.isNotEmpty
-                                          ? p.username[0]
-                                          : 'U')
+                                  (p.username.isNotEmpty ? p.username[0] : 'U')
                                       .toUpperCase(),
                                   style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppColors.primary700),
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.primary700,
+                                  ),
                                 )
                               : null,
                         ),
@@ -133,29 +139,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ? p.fullName
                                           : p.username,
                                       style: const TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 16),
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 16,
+                                      ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   if (p.isVerified) ...[
                                     const SizedBox(width: 4),
-                                    const Icon(Icons.verified,
-                                        size: 16,
-                                        color: AppColors.primary600),
+                                    const Icon(
+                                      Icons.verified,
+                                      size: 16,
+                                      color: AppColors.primary600,
+                                    ),
                                   ],
                                   if (p.premiumActive) ...[
                                     const SizedBox(width: 4),
-                                    const Icon(Icons.workspace_premium,
-                                        size: 16,
-                                        color: AppColors.accent500),
+                                    const Icon(
+                                      Icons.workspace_premium,
+                                      size: 16,
+                                      color: AppColors.accent500,
+                                    ),
                                   ],
                                 ],
                               ),
-                              Text('@${p.username}',
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.gray500)),
+                              Text(
+                                '@${p.username}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.gray500,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -170,11 +184,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    _balanceCard('Earning', p.earningBalance,
-                        AppColors.earnGreen),
+                    _balanceCard(
+                      'Earning',
+                      p.earningBalance,
+                      AppColors.earnGreen,
+                    ),
                     const SizedBox(width: 12),
-                    _balanceCard('Deposit', p.depositBalance,
-                        AppColors.primary600),
+                    _balanceCard(
+                      'Deposit',
+                      p.depositBalance,
+                      AppColors.primary600,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -193,93 +213,147 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _menuItem(Icons.add_card, 'Deposit',
-                    'Add money to your deposit balance', () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const DepositScreen()));
-                }),
-                _menuItem(Icons.payments_outlined, 'Withdraw',
-                    'Cash out your earnings', () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const WithdrawScreen()));
-                }),
-                _menuItem(Icons.campaign_outlined, 'Post a Job',
-                    'Get workers to complete your task', () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const PostJobScreen()));
-                }),
-                _menuItem(Icons.share_outlined, 'Share & Earn',
-                    'Invite friends and earn referral bonus', () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const ShareEarnScreen()));
-                }),
-                if (p.isAdmin)
-  
-                _menuItem(Icons.workspace_premium, 'Premium Membership',
-                    'Unlock premium-only jobs', () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const PremiumScreen()));
-                }),
-                _menuItem(Icons.verified_user, 'Verify Account',
-                    'Get the verified badge', () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const VerifyScreen()));
-                }),
-                _menuItem(Icons.support_agent, 'Support Tickets',
-                    'Ask support for help', () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const TicketScreen()));
-                }),
-                _menuItem(Icons.forum, 'Live Chat',
-                    'Chat with support in real time', () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const LiveChatScreen()));
-                }),
-                _menuItem(Icons.campaign, 'Advertise',
-                    'Promote your thing with our users', () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const AdvertisementScreen()));
-                }),
-                _menuItem(Icons.receipt_long, 'Deposit History',
-                    'All your deposit requests', () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const DepositHistoryScreen()));
-                }),
-                _menuItem(Icons.article_outlined, 'Blog & Guides',
-                    'Learn how to earn more', () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const BlogScreen()));
-                }),
-                _menuItem(Icons.admin_panel_settings_outlined,
-                      'Admin Panel', 'Manage users, deposits, withdrawals',
-                      () {
+                _menuItem(
+                  Icons.add_card,
+                  'Deposit',
+                  'Add money to your deposit balance',
+                  () {
                     Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const DepositScreen()),
+                    );
+                  },
+                ),
+                _menuItem(
+                  Icons.payments_outlined,
+                  'Withdraw',
+                  'Cash out your earnings',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const WithdrawScreen()),
+                    );
+                  },
+                ),
+                _menuItem(
+                  Icons.campaign_outlined,
+                  'Post a Job',
+                  'Get workers to complete your task',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const PostJobScreen()),
+                    );
+                  },
+                ),
+                _menuItem(
+                  Icons.share_outlined,
+                  'Share & Earn',
+                  'Invite friends and earn referral bonus',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ShareEarnScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _menuItem(
+                  Icons.workspace_premium,
+                  'Premium Membership',
+                  'Unlock premium-only jobs',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const PremiumScreen()),
+                    );
+                  },
+                ),
+                _menuItem(
+                  Icons.verified_user,
+                  'Verify Account',
+                  'Get the verified badge',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const VerifyScreen()),
+                    );
+                  },
+                ),
+                _menuItem(
+                  Icons.support_agent,
+                  'Support Tickets',
+                  'Ask support for help',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const TicketScreen()),
+                    );
+                  },
+                ),
+                _menuItem(
+                  Icons.forum,
+                  'Live Chat',
+                  'Chat with support in real time',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LiveChatScreen()),
+                    );
+                  },
+                ),
+                _menuItem(
+                  Icons.campaign,
+                  'Advertise',
+                  'Promote your thing with our users',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AdvertisementScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _menuItem(
+                  Icons.receipt_long,
+                  'Deposit History',
+                  'All your deposit requests',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const DepositHistoryScreen(),
+                      ),
+                    );
+                  },
+                ),
+                _menuItem(
+                  Icons.article_outlined,
+                  'Blog & Guides',
+                  'Learn how to earn more',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const BlogScreen()),
+                    );
+                  },
+                ),
+                if (p.isAdmin)
+                  _menuItem(
+                    Icons.admin_panel_settings_outlined,
+                    'Admin Panel',
+                    'Manage users, deposits, withdrawals',
+                    () {
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const AdminLoginScreen()));
-                  }),
+                          builder: (_) => const AdminLoginScreen(),
+                        ),
+                      );
+                    },
+                  ),
                 const SizedBox(height: 16),
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
@@ -305,15 +379,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label,
-                  style: const TextStyle(
-                      fontSize: 12, color: AppColors.gray500)),
+              Text(
+                label,
+                style: const TextStyle(fontSize: 12, color: AppColors.gray500),
+              ),
               const SizedBox(height: 4),
-              Text(fmtMoney(amount),
-                  style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 17,
-                      color: color)),
+              Text(
+                fmtMoney(amount),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 17,
+                  color: color,
+                ),
+              ),
             ],
           ),
         ),
@@ -324,19 +402,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _stat(String value, String label) {
     return Column(
       children: [
-        Text(value,
-            style:
-                const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+        Text(
+          value,
+          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+        ),
         const SizedBox(height: 2),
-        Text(label,
-            style:
-                const TextStyle(fontSize: 11, color: AppColors.gray500)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 11, color: AppColors.gray500),
+        ),
       ],
     );
   }
 
-  Widget _menuItem(IconData icon, String title, String subtitle,
-      VoidCallback onTap) {
+  Widget _menuItem(
+    IconData icon,
+    String title,
+    String subtitle,
+    VoidCallback onTap,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -344,12 +428,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           backgroundColor: AppColors.primary50,
           child: Icon(icon, color: AppColors.primary600, size: 20),
         ),
-        title: Text(title,
-            style: const TextStyle(
-                fontWeight: FontWeight.w600, fontSize: 14)),
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        ),
         subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
-        trailing: const Icon(Icons.chevron_right,
-            color: AppColors.gray500),
+        trailing: const Icon(Icons.chevron_right, color: AppColors.gray500),
         onTap: onTap,
       ),
     );

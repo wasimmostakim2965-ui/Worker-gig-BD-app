@@ -183,7 +183,7 @@ class _AdvertisementScreenState extends State<AdvertisementScreen> {
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w600)),
                                 subtitle: Text(
-                                    'Budget: ৳${(ad['budget'] as num?)?.toStringAsFixed(2) ?? '0.00'} • Clicks: ${ad['clicks'] ?? 0}',
+                                    'Budget: ৳${fmt2(ad['budget'])} • Clicks: ${ad['clicks'] ?? 0}',
                                     style: const TextStyle(fontSize: 12)),
                                 trailing:
                                     StatusBadge(ad['status'] ?? 'pending'),

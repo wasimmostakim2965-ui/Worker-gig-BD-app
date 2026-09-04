@@ -47,8 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
           .eq('is_active', true)
           .order('display_order');
       if (mounted) {
-        setState(() =>
-            _categories = rows.map(Category.fromJson).toList());
+        setState(() => _categories = rows.map(Category.fromJson).toList());
       }
     } catch (_) {}
   }
@@ -63,15 +62,15 @@ class _HomeScreenState extends State<HomeScreen> {
         q = q.or('title.ilike.%$search%,description.ilike.%$search%');
       }
       final rows = switch (_sort) {
-        'high_price' => await q
-            .order('reward_per_worker', ascending: false)
-            .limit(50),
+        'high_price' =>
+          await q.order('reward_per_worker', ascending: false).limit(50),
         'low_price' =>
           await q.order('reward_per_worker', ascending: true).limit(50),
-        _ => await q
-            .order('is_premium_only', ascending: false)
-            .order('created_at', ascending: false)
-            .limit(50),
+        _ =>
+          await q
+              .order('is_premium_only', ascending: false)
+              .order('created_at', ascending: false)
+              .limit(50),
       };
       var page = rows.map(Job.fromJson).toList();
 
@@ -85,9 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
             .eq('worker_id', profile.id)
             .inFilter('job_id', page.map((j) => j.id).toList());
         final done = mine.map((t) => t['job_id']).toSet();
-        page = page
-            .where((j) => !j.isFull && !done.contains(j.id))
-            .toList();
+        page = page.where((j) => !j.isFull && !done.contains(j.id)).toList();
       }
       if (mounted) setState(() => _jobs = page);
     } catch (e) {
@@ -108,8 +105,10 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.only(right: 12),
             child: Center(
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.success50,
                   borderRadius: BorderRadius.circular(8),
@@ -117,9 +116,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text(
                   fmtMoney(profile?.earningBalance),
                   style: const TextStyle(
-                      color: AppColors.earnGreen,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13),
+                    color: AppColors.earnGreen,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ),
@@ -157,10 +157,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             value: _category,
                             items: [
                               const DropdownMenuItem(
-                                  value: 'all',
-                                  child: Text('All Categories')),
-                              ..._categories.map((c) => DropdownMenuItem(
-                                  value: c.name, child: Text(c.name))),
+                                value: 'all',
+                                child: Text('All Categories'),
+                              ),
+                              ..._categories.map(
+                                (c) => DropdownMenuItem(
+                                  value: c.name,
+                                  child: Text(c.name),
+                                ),
+                              ),
                             ],
                             onChanged: (v) {
                               setState(() => _category = v ?? 'all');
@@ -169,22 +174,28 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        _FilterDropdown(
-                          value: _sort,
-                          items: const [
-                            DropdownMenuItem(
-                                value: 'latest', child: Text('Latest')),
-                            DropdownMenuItem(
+                        Expanded(
+                          child: _FilterDropdown(
+                            value: _sort,
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'latest',
+                                child: Text('Latest'),
+                              ),
+                              DropdownMenuItem(
                                 value: 'high_price',
-                                child: Text('High Price')),
-                            DropdownMenuItem(
+                                child: Text('High Price'),
+                              ),
+                              DropdownMenuItem(
                                 value: 'low_price',
-                                child: Text('Low Price')),
-                          ],
-                          onChanged: (v) {
-                            setState(() => _sort = v ?? 'latest');
-                            _loadJobs();
-                          },
+                                child: Text('Low Price'),
+                              ),
+                            ],
+                            onChanged: (v) {
+                              setState(() => _sort = v ?? 'latest');
+                              _loadJobs();
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -196,8 +207,11 @@ class _HomeScreenState extends State<HomeScreen> {
               const SliverFillRemaining(child: LoadingView())
             else if (_jobs.isEmpty)
               const SliverFillRemaining(
-                child: EmptyView(Icons.work_off_outlined, 'No jobs available',
-                    subtitle: 'Check back later for new tasks.'),
+                child: EmptyView(
+                  Icons.work_off_outlined,
+                  'No jobs available',
+                  subtitle: 'Check back later for new tasks.',
+                ),
               )
             else
               SliverList.separated(
@@ -214,7 +228,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 }
 
 /// Matches the web filter selects: rounded bordered box, small text.
@@ -222,8 +235,11 @@ class _FilterDropdown extends StatelessWidget {
   final String value;
   final List<DropdownMenuItem<String>> items;
   final ValueChanged<String?> onChanged;
-  const _FilterDropdown(
-      {required this.value, required this.items, required this.onChanged});
+  const _FilterDropdown({
+    required this.value,
+    required this.items,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -240,9 +256,10 @@ class _FilterDropdown extends StatelessWidget {
           isDense: true,
           isExpanded: true,
           style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: AppColors.gray600),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: AppColors.gray600,
+          ),
           items: items,
           onChanged: onChanged,
         ),
@@ -278,25 +295,34 @@ class _JobCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: Text(job.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 14)),
+                    child: Text(
+                      job.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                   if (job.rewardPerWorker >= 0.1)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFC8F7DC),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: const Text('TOP JOB',
-                          style: TextStyle(
-                              color: AppColors.earnGreen,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800)),
+                      child: const Text(
+                        'TOP JOB',
+                        style: TextStyle(
+                          color: AppColors.earnGreen,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -312,9 +338,10 @@ class _JobCard extends StatelessWidget {
                       Text(
                         '${job.filledSlots} OF ${job.totalSlots}',
                         style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.gray500),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.gray500,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       SizedBox(
@@ -324,22 +351,28 @@ class _JobCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(3),
                           child: LinearProgressIndicator(
                             value: job.totalSlots > 0
-                                ? (job.filledSlots / job.totalSlots)
-                                    .clamp(0.0, 1.0)
+                                ? (job.filledSlots / job.totalSlots).clamp(
+                                    0.0,
+                                    1.0,
+                                  )
                                 : 0,
                             backgroundColor: AppColors.gray200,
                             valueColor: const AlwaysStoppedAnimation(
-                                AppColors.earnGreen),
+                              AppColors.earnGreen,
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  Text(fmtMoney(job.rewardPerWorker),
-                      style: const TextStyle(
-                          color: AppColors.earnGreen,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 18)),
+                  Text(
+                    fmtMoney(job.rewardPerWorker),
+                    style: const TextStyle(
+                      color: AppColors.earnGreen,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                    ),
+                  ),
                 ],
               ),
             ],

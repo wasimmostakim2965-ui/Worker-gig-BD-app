@@ -45,29 +45,28 @@ class Profile {
   bool get premiumActive =>
       isPremium &&
       (premiumExpiresAt == null ||
-          DateTime.tryParse(premiumExpiresAt!)
-                  ?.isAfter(DateTime.now()) ==
+          DateTime.tryParse(premiumExpiresAt!)?.isAfter(DateTime.now()) ==
               true);
 
   factory Profile.fromJson(Map<String, dynamic> j) => Profile(
-        id: j['id'] as String,
-        username: (j['username'] ?? '') as String,
-        fullName: (j['full_name'] ?? '') as String,
-        avatarUrl: (j['avatar_url'] ?? '') as String,
-        phone: (j['phone'] ?? '') as String,
-        earningBalance: _num(j['earning_balance']),
-        depositBalance: _num(j['deposit_balance']),
-        status: (j['status'] ?? 'active') as String,
-        isVerified: (j['is_verified'] ?? false) as bool,
-        isPremium: (j['is_premium'] ?? false) as bool,
-        premiumExpiresAt: j['premium_expires_at'] as String?,
-        referralCode: j['referral_code'] as String?,
-        totalEarned: _num(j['total_earned']),
-        totalDeposit: _num(j['total_deposit']),
-        totalWithdraw: _num(j['total_withdraw']),
-        tasksCompleted: (j['tasks_completed'] ?? 0) as int,
-        jobsPosted: (j['jobs_posted'] ?? 0) as int,
-      );
+    id: _str(j['id']),
+    username: _str(j['username']),
+    fullName: _str(j['full_name']),
+    avatarUrl: _str(j['avatar_url']),
+    phone: _str(j['phone']),
+    earningBalance: _num(j['earning_balance']),
+    depositBalance: _num(j['deposit_balance']),
+    status: (j['status'] ?? 'active') as String,
+    isVerified: _toBool(j['is_verified']),
+    isPremium: _toBool(j['is_premium']),
+    premiumExpiresAt: _strOrNull(j['premium_expires_at']),
+    referralCode: _strOrNull(j['referral_code']),
+    totalEarned: _num(j['total_earned']),
+    totalDeposit: _num(j['total_deposit']),
+    totalWithdraw: _num(j['total_withdraw']),
+    tasksCompleted: _toInt(j['tasks_completed']),
+    jobsPosted: _toInt(j['jobs_posted']),
+  );
 }
 
 class Category {
@@ -84,13 +83,13 @@ class Category {
   });
 
   factory Category.fromJson(Map<String, dynamic> j) => Category(
-        id: j['id'] as String,
-        name: (j['name'] ?? '') as String,
-        subcategories: ((j['subcategories'] as List?) ?? [])
-            .map((e) => e.toString())
-            .toList(),
-        displayOrder: (j['display_order'] ?? 0) as int,
-      );
+    id: _str(j['id']),
+    name: _str(j['name']),
+    subcategories: ((j['subcategories'] as List?) ?? [])
+        .map((e) => e.toString())
+        .toList(),
+    displayOrder: _toInt(j['display_order']),
+  );
 }
 
 class Job {
@@ -135,25 +134,24 @@ class Job {
   bool get isFull => filledSlots >= totalSlots;
 
   factory Job.fromJson(Map<String, dynamic> j) => Job(
-        id: j['id'] as String,
-        userId: (j['user_id'] ?? '') as String,
-        title: (j['title'] ?? '') as String,
-        description: (j['description'] ?? '') as String,
-        category: (j['category'] ?? '') as String,
-        subcategory: (j['subcategory'] ?? '') as String,
-        url: (j['url'] ?? '') as String,
-        proofInstructions: (j['proof_instructions'] ?? '') as String,
-        screenshotCount: (j['screenshot_count'] ?? 0) as int,
-        screenshotInstructions:
-            (j['screenshot_instructions'] ?? '') as String,
-        imageUrl: (j['image_url'] ?? '') as String,
-        rewardPerWorker: _num(j['reward_per_worker']),
-        totalSlots: (j['total_slots'] ?? 0) as int,
-        filledSlots: (j['filled_slots'] ?? 0) as int,
-        status: (j['status'] ?? 'active') as String,
-        isPremiumOnly: (j['is_premium_only'] ?? false) as bool,
-        createdAt: (j['created_at'] ?? '') as String,
-      );
+    id: _str(j['id']),
+    userId: _str(j['user_id']),
+    title: _str(j['title']),
+    description: _str(j['description']),
+    category: _str(j['category']),
+    subcategory: _str(j['subcategory']),
+    url: _str(j['url']),
+    proofInstructions: _str(j['proof_instructions']),
+    screenshotCount: _toInt(j['screenshot_count']),
+    screenshotInstructions: _str(j['screenshot_instructions']),
+    imageUrl: _str(j['image_url']),
+    rewardPerWorker: _num(j['reward_per_worker']),
+    totalSlots: _toInt(j['total_slots']),
+    filledSlots: _toInt(j['filled_slots']),
+    status: (j['status'] ?? 'active') as String,
+    isPremiumOnly: _toBool(j['is_premium_only']),
+    createdAt: _str(j['created_at']),
+  );
 }
 
 class TaskItem {
@@ -182,19 +180,19 @@ class TaskItem {
   });
 
   factory TaskItem.fromJson(Map<String, dynamic> j) => TaskItem(
-        id: j['id'] as String,
-        jobId: (j['job_id'] ?? '') as String,
-        workerId: (j['worker_id'] ?? '') as String,
-        status: (j['status'] ?? 'pending') as String,
-        proofUrl: (j['proof_url'] ?? '') as String,
-        proofText: (j['proof_text'] ?? '') as String,
-        submittedAt: j['submitted_at'] as String?,
-        tipAmount: _num(j['tip_amount']),
-        adminNote: j['admin_note'] as String?,
-        job: j['jobs'] is Map<String, dynamic>
-            ? Job.fromJson(j['jobs'] as Map<String, dynamic>)
-            : null,
-      );
+    id: _str(j['id']),
+    jobId: _str(j['job_id']),
+    workerId: _str(j['worker_id']),
+    status: (j['status'] ?? 'pending') as String,
+    proofUrl: _str(j['proof_url']),
+    proofText: _str(j['proof_text']),
+    submittedAt: _strOrNull(j['submitted_at']),
+    tipAmount: _num(j['tip_amount']),
+    adminNote: _strOrNull(j['admin_note']),
+    job: j['jobs'] is Map<String, dynamic>
+        ? Job.fromJson(j['jobs'] as Map<String, dynamic>)
+        : null,
+  );
 }
 
 class DepositRequest {
@@ -223,19 +221,19 @@ class DepositRequest {
   });
 
   factory DepositRequest.fromJson(Map<String, dynamic> j) => DepositRequest(
-        id: j['id'] as String,
-        userId: (j['user_id'] ?? '') as String,
-        amount: _num(j['amount']),
-        method: (j['method'] ?? '') as String,
-        senderNumber: (j['sender_number'] ?? '') as String,
-        transactionId: (j['transaction_id'] ?? '') as String,
-        status: (j['status'] ?? 'pending') as String,
-        adminNote: (j['admin_note'] ?? '') as String,
-        createdAt: (j['created_at'] ?? '') as String,
-        user: j['profiles'] is Map<String, dynamic>
-            ? Profile.fromJson(j['profiles'] as Map<String, dynamic>)
-            : null,
-      );
+    id: _str(j['id']),
+    userId: _str(j['user_id']),
+    amount: _num(j['amount']),
+    method: _str(j['method']),
+    senderNumber: _str(j['sender_number']),
+    transactionId: _str(j['transaction_id']),
+    status: (j['status'] ?? 'pending') as String,
+    adminNote: _str(j['admin_note']),
+    createdAt: _str(j['created_at']),
+    user: j['profiles'] is Map<String, dynamic>
+        ? Profile.fromJson(j['profiles'] as Map<String, dynamic>)
+        : null,
+  );
 }
 
 class WithdrawalRequest {
@@ -263,14 +261,14 @@ class WithdrawalRequest {
 
   factory WithdrawalRequest.fromJson(Map<String, dynamic> j) =>
       WithdrawalRequest(
-        id: j['id'] as String,
-        userId: (j['user_id'] ?? '') as String,
+        id: _str(j['id']),
+        userId: _str(j['user_id']),
         amount: _num(j['amount']),
-        method: (j['method'] ?? '') as String,
-        accountNumber: (j['account_number'] ?? '') as String,
+        method: _str(j['method']),
+        accountNumber: _str(j['account_number']),
         status: (j['status'] ?? 'pending') as String,
-        adminNote: (j['admin_note'] ?? '') as String,
-        createdAt: (j['created_at'] ?? '') as String,
+        adminNote: _str(j['admin_note']),
+        createdAt: _str(j['created_at']),
         user: j['profiles'] is Map<String, dynamic>
             ? Profile.fromJson(j['profiles'] as Map<String, dynamic>)
             : null,
@@ -295,14 +293,21 @@ class AppNotification {
   });
 
   factory AppNotification.fromJson(Map<String, dynamic> j) => AppNotification(
-        id: j['id'] as String,
-        title: (j['title'] ?? '') as String,
-        message: (j['message'] ?? '') as String,
-        type: (j['type'] ?? 'info') as String,
-        isRead: (j['is_read'] ?? false) as bool,
-        createdAt: (j['created_at'] ?? '') as String,
-      );
+    id: _str(j['id']),
+    title: _str(j['title']),
+    message: _str(j['message']),
+    type: (j['type'] ?? 'info') as String,
+    isRead: _toBool(j['is_read']),
+    createdAt: _str(j['created_at']),
+  );
 }
 
-double _num(dynamic v) =>
-    v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
+double _num(dynamic v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
+
+String _str(dynamic v) => v?.toString() ?? '';
+
+String? _strOrNull(dynamic v) => v == null ? null : v.toString();
+
+int _toInt(dynamic v) => v is num ? v.toInt() : int.tryParse('$v') ?? 0;
+
+bool _toBool(dynamic v) => v is bool ? v : (v == 't' || v == 'true');
