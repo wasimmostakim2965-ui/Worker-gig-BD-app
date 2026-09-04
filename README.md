@@ -10,12 +10,12 @@ Same backend as the website (Supabase) — same tables, same RPCs, same rules.
 
 ---
 
-## 🔑 Signing Setup (সেপ্টেম্বর ২০২৬-এ keystore রোটেট করা হয়েছে)
+## 🔑 Signing Setup (আসল keystore-এ ফিরে যাওয়া হয়েছে)
 
-আগের keystore (`Wasim@2965`) রিপো পাবলিক থাকায় লিক হয়ে গিয়েছিল, তাই
-**নতুন keystore** বানানো হয়েছে (RSA 4096-bit, ~৩০ বছর validity)। পুরনো
-সার্টিফিকেট দিয়ে সাইনড অ্যাপ আর আপডেট পাবে না — পুরনো ইনস্টল থাকলে
-আগে uninstall করে নতুন APK ইনস্টল করতে হবে।
+Google Cloud Console-এ আগে থেকে রেজিস্টার্ড SHA-1-এর সাথে মিল রাখতে
+**আসল keystore (`workergigbd`, RSA 2048)**-ই signing-এ ব্যবহৃত হয় —
+এতে Google Sign-In আগের মতোই কাজ করে এবং পুরনো ইনস্টলের উপরে আপডেট
+বসে (uninstall লাগে না)।
 
 - Keystore: শুধু **GitHub Secrets**-এ (`ANDROID_KEYSTORE_BASE64`,
   `KEYSTORE_PASSWORD`, `KEY_PASSWORD`, `KEY_ALIAS`) — রিপোতে কোনো
@@ -25,27 +25,26 @@ Same backend as the website (Supabase) — same tables, same RPCs, same rules.
 - `key.properties` না থাকলে release বিল্ড debug key দিয়ে সাইন হয় —
   সেটা শুধু টেস্টের জন্য, স্টোরে দেবেন না।
 
-### Signing Certificate Fingerprints — নতুন keystore (Google Play / Firebase-এ লাগবে)
+### Signing Certificate Fingerprints (Google Play / Firebase-এ লাগবে)
 
 | Hash | Value |
 |---|---|
-| **SHA-1** | `A0:D1:AA:C2:9E:64:83:8F:6E:F5:75:18:1A:E6:09:09:A0:C0:BE:5B` |
-| **SHA-256** | `D9:85:15:B7:BF:54:C8:EB:D9:84:3E:BD:22:66:66:2B:6B:D4:BB:56:89:B0:E2:79:93:FE:45:39:56:20:57:84` |
+| **SHA-1** | `A5:36:49:F2:D3:5E:80:A6:CE:9A:32:FF:3B:EA:9C:DE:F3:E6:07:99` |
+| **SHA-256** | `14:57:A0:95:8A:48:85:38:8F:14:C0:52:2A:DA:AC:C9:C5:BB:0A:F0:5A:11:9D:8C:B9:2F:BE:94:64:FF:54:89` |
 
-### ⚠️ Google Sign-In সেটআপ (একবার করতে হবে)
+### ⚠️ Google Sign-In সেটআপ
 
-Native Google account picker কাজ করাতে উপরের **SHA-1** আর package name
-Google Cloud Console-এ যোগ করতে হবে:
+Google Cloud Console-এ এই **SHA-1 + package name** আগে থেকেই
+রেজিস্টার্ড — তাই নতুন কিছু করতে হবে না। ভবিষ্যতে keystore বদলালে
+নতুন SHA-1 যোগ করতে হবে:
 
 1. [Google Cloud Console](https://console.cloud.google.com/apis/credentials) →
    Credentials → **Create OAuth Client ID → Android**
 2. Package name: `com.workergigbd.app`
-3. SHA-1: `A0:D1:AA:C2:9E:64:83:8F:6E:F5:75:18:1A:E6:09:09:A0:C0:BE:5B`
+3. SHA-1: `A5:36:49:F2:D3:5E:80:A6:CE:9A:32:FF:3B:EA:9C:DE:F3:E6:07:99`
 4. তৈরি হওয়া **Android Client ID** কপি করে Supabase Dashboard →
    Authentication → Providers → Google → **Authorized Client IDs**-তে
    (comma দিয়ে) যোগ করুন।
-
-এটা না করলে "Sign in with Google"-এ Developer Error আসবে।
 
 ---
 
