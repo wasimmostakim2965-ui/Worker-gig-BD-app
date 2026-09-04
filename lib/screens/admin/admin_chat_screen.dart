@@ -44,64 +44,74 @@ class _AdminChatScreenState extends State<AdminChatScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _convs.isEmpty
-              ? const EmptyState(
-                  icon: Icons.forum,
-                  title: 'No conversations',
-                  subtitle: 'User chats will appear here.')
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(12),
-                    itemCount: _convs.length,
-                    itemBuilder: (context, i) {
-                      final c = _convs[i];
-                      final username =
-                          (c['profiles']?['username'] ?? 'user').toString();
-                      final unread = c['admin_unread_count'] as int? ?? 0;
-                      return Card(
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: AppColors.primary50,
-                            child: Text(
-                                username.isNotEmpty
-                                    ? username[0].toUpperCase()
-                                    : '?',
+          ? const EmptyState(
+              icon: Icons.forum,
+              title: 'No conversations',
+              subtitle: 'User chats will appear here.',
+            )
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(12),
+                itemCount: _convs.length,
+                itemBuilder: (context, i) {
+                  final c = _convs[i];
+                  final username = (c['profiles']?['username'] ?? 'user')
+                      .toString();
+                  final unreadRaw = c['admin_unread_count'];
+                  final unread = unreadRaw is num
+                      ? unreadRaw.toInt()
+                      : int.tryParse('$unreadRaw') ?? 0;
+                  return Card(
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: AppColors.primary50,
+                        child: Text(
+                          username.isNotEmpty ? username[0].toUpperCase() : '?',
+                          style: const TextStyle(color: AppColors.primary700),
+                        ),
+                      ),
+                      title: Text(
+                        '@$username',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: Text(
+                        fmtDate(c['updated_at']),
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      trailing: unread > 0
+                          ? Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(
+                                color: AppColors.danger600,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                '$unread',
                                 style: const TextStyle(
-                                    color: AppColors.primary700)),
-                          ),
-                          title: Text('@$username',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: Text(fmtDate(c['updated_at']),
-                              style: const TextStyle(fontSize: 12)),
-                          trailing: unread > 0
-                              ? Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: const BoxDecoration(
-                                      color: AppColors.danger600,
-                                      shape: BoxShape.circle),
-                                  child: Text('$unread',
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 11)),
-                                )
-                              : null,
-                          onTap: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => _AdminChatThread(
-                                  convId: c['id'] as String,
-                                  username: username,
+                                  color: Colors.white,
+                                  fontSize: 11,
                                 ),
                               ),
-                            );
-                            _load();
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                            )
+                          : null,
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => _AdminChatThread(
+                              convId: c['id'] as String,
+                              username: username,
+                            ),
+                          ),
+                        );
+                        _load();
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }
@@ -146,7 +156,8 @@ class _AdminChatThreadState extends State<_AdminChatThread> {
           .isFilter('read_at', null);
       await auth.client
           .from('chat_conversations')
-          .update({'admin_unread_count': 0}).eq('id', widget.convId);
+          .update({'admin_unread_count': 0})
+          .eq('id', widget.convId);
     } catch (_) {}
     if (mounted) setState(() => _loading = false);
   }
@@ -170,8 +181,9 @@ class _AdminChatThreadState extends State<_AdminChatThread> {
       if (mounted) setState(() => _messages = [..._messages, row]);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(friendlyError(e))));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(friendlyError(e))));
       }
     }
     if (mounted) setState(() => _busy = false);
@@ -193,8 +205,8 @@ class _AdminChatThreadState extends State<_AdminChatThread> {
                     itemCount: _messages.length,
                     itemBuilder: (context, i) {
                       final m = _messages[i];
-                      final mine = m['sender_id'] == myId ||
-                          m['is_admin_reply'] == true;
+                      final mine =
+                          m['sender_id'] == myId || m['is_admin_reply'] == true;
                       return Align(
                         alignment: mine
                             ? Alignment.centerRight
@@ -202,22 +214,21 @@ class _AdminChatThreadState extends State<_AdminChatThread> {
                         child: Container(
                           margin: const EdgeInsets.symmetric(vertical: 3),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                           constraints: const BoxConstraints(maxWidth: 300),
                           decoration: BoxDecoration(
-                            color: mine
-                                ? AppColors.primary600
-                                : Colors.white,
+                            color: mine ? AppColors.primary600 : Colors.white,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: AppColors.gray200),
                           ),
                           child: Text(
                             m['message'] ?? '',
                             style: TextStyle(
-                                color: mine
-                                    ? Colors.white
-                                    : AppColors.gray900,
-                                height: 1.4),
+                              color: mine ? Colors.white : AppColors.gray900,
+                              height: 1.4,
+                            ),
                           ),
                         ),
                       );
@@ -233,14 +244,17 @@ class _AdminChatThreadState extends State<_AdminChatThread> {
                     child: TextField(
                       controller: _input,
                       decoration: const InputDecoration(
-                          hintText: 'Reply...', isDense: true),
+                        hintText: 'Reply...',
+                        isDense: true,
+                      ),
                       onSubmitted: (_) => _send(),
                     ),
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
-                      onPressed: _busy ? null : _send,
-                      icon: const Icon(Icons.send)),
+                    onPressed: _busy ? null : _send,
+                    icon: const Icon(Icons.send),
+                  ),
                 ],
               ),
             ),

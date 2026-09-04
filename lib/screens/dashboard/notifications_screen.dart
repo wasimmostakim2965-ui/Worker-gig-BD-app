@@ -28,7 +28,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _load() async {
     final profile = context.read<AuthService>().profile;
-    if (profile == null) return;
+    if (profile == null) {
+      setState(() => _loading = false);
+      return;
+    }
     setState(() => _loading = true);
     try {
       final rows = await Supabase.instance.client
@@ -50,19 +53,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Future<void> _markAllRead() async {
     final profile = context.read<AuthService>().profile;
     if (profile == null) return;
-    await Supabase.instance.client
-        .from('notifications')
-        .update({'is_read': true})
-        .eq('user_id', profile.id)
-        .eq('is_read', false);
+    try {
+      await Supabase.instance.client
+          .from('notifications')
+          .update({'is_read': true})
+          .eq('user_id', profile.id)
+          .eq('is_read', false);
+    } catch (e) {
+      debugPrint('Mark all read error: $e');
+    }
     _load();
   }
 
   Future<void> _delete(String id) async {
-    await Supabase.instance.client
-        .from('notifications')
-        .delete()
-        .eq('id', id);
+    try {
+      await Supabase.instance.client
+          .from('notifications')
+          .delete()
+          .eq('id', id);
+    } catch (e) {
+      debugPrint('Notification delete error: $e');
+    }
     _load();
   }
 

@@ -49,12 +49,21 @@ class _VerifyScreenState extends State<VerifyScreen> {
   }
 
   Future<void> _pick() async {
-    final picked = await ImagePicker().pickImage(
-        source: ImageSource.gallery, maxWidth: 2048, imageQuality: 90);
-    if (picked == null) return;
-    _fileBytes = await picked.readAsBytes();
-    _fileName = picked.name;
-    setState(() {});
+    try {
+      final picked = await ImagePicker().pickImage(
+          source: ImageSource.gallery, maxWidth: 2048, imageQuality: 90);
+      if (picked == null) return;
+      final bytes = await picked.readAsBytes();
+      if (!mounted) return;
+      setState(() {
+        _fileBytes = bytes;
+        _fileName = picked.name;
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = 'Could not pick the image: $e');
+      }
+    }
   }
 
   Future<void> _submit() async {

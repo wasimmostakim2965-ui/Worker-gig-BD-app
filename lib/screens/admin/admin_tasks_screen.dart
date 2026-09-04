@@ -113,7 +113,7 @@ class _AdminTasksScreenState extends State<AdminTasksScreen> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                                'Worker: ${t.workerId.substring(0, 8)}… • ${fmtMoney(t.job?.rewardPerWorker)}',
+                                'Worker: ${shortId(t.workerId)} • ${fmtMoney(t.job?.rewardPerWorker)}',
                                 style: const TextStyle(
                                     fontSize: 12,
                                     color: AppColors.gray500)),

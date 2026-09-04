@@ -34,7 +34,10 @@ class _MyJobsScreenState extends State<MyJobsScreen> {
 
   Future<void> _load() async {
     final profile = context.read<AuthService>().profile;
-    if (profile == null) return;
+    if (profile == null) {
+      setState(() => _loading = false);
+      return;
+    }
     setState(() => _loading = true);
     try {
       final rows = await _db
@@ -253,7 +256,7 @@ class _JobSubmissionsScreenState extends State<JobSubmissionsScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    'Worker: ${t.workerId.substring(0, 8)}…',
+                                    'Worker: ${shortId(t.workerId)}',
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 13),

@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../data/legal_content.dart';
 import '../services/auth_service.dart';
@@ -622,10 +621,9 @@ class _LandingScreenState extends State<LandingScreen> {
           const SizedBox(height: 8),
           _footerLink(
               'wasimmostakim2965@gmail.com',
-              () => launchUrl(
-                  Uri.parse('mailto:wasimmostakim2965@gmail.com'))),
+              () => safeLaunch('mailto:wasimmostakim2965@gmail.com')),
           _footerLink('WhatsApp: +880 1338-882758',
-              () => launchUrl(Uri.parse('https://wa.me/8801338882758'))),
+              () => safeLaunch('https://wa.me/8801338882758')),
           const SizedBox(height: 4),
           const Text('workergigbd.site',
               style: TextStyle(fontSize: 13, color: AppColors.gray500)),

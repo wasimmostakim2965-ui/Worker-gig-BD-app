@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Colors mirrored 1:1 from the website's tailwind.config.js so the app
 /// looks identical to workergigbd.site.
@@ -119,6 +120,18 @@ ThemeData buildAppTheme() {
 /// Format money exactly like the website: `$ 0.000`
 String fmtMoney(num? v) => '\$ ${(v ?? 0).toDouble().toStringAsFixed(3)}';
 
+/// First 8 chars of a uuid for display; never throws on short/empty input.
+String shortId(String? id) {
+  final s = id ?? '';
+  return s.length > 8 ? '${s.substring(0, 8)}…' : s;
+}
+
+/// Format any JSON number (num or numeric string) with 2 decimals; never throws.
+String fmt2(dynamic v) {
+  final n = v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
+  return n.toStringAsFixed(2);
+}
+
 /// Small friendly error extraction (matches UI copy on web).
 String friendlyError(Object e) {
   final s = e.toString();
@@ -134,12 +147,36 @@ String fmtDate(dynamic v) {
   if (v == null) return '';
   try {
     final d = DateTime.parse(v.toString()).toLocal();
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
     final ampm = d.hour >= 12 ? 'PM' : 'AM';
     final min = d.minute.toString().padLeft(2, '0');
     return '${months[d.month - 1]} ${d.day}, $h:$min $ampm';
   } catch (_) {
     return v.toString();
+  }
+}
+
+/// Launch an external URL without ever throwing (bad URL / no handler app).
+Future<void> safeLaunch(String url) async {
+  try {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return;
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  } catch (e) {
+    debugPrint('Launch failed: $e');
   }
 }

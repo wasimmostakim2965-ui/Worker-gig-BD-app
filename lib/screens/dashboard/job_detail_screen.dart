@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../models.dart';
 import '../../services/auth_service.dart';
@@ -41,19 +40,28 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
   }
 
   Future<void> _addScreenshot(int slot) async {
-    final file = await _picker.pickImage(
-        source: ImageSource.gallery, maxWidth: 1920, imageQuality: 85);
-    if (file == null) return;
+    XFile? file;
+    try {
+      file = await _picker.pickImage(
+          source: ImageSource.gallery, maxWidth: 1920, imageQuality: 85);
+    } catch (e) {
+      if (mounted) setState(() => _error = 'Could not pick the image: $e');
+      return;
+    }
+    if (file == null || !mounted) return;
     setState(() {
       _uploading = true;
       _error = null;
     });
     try {
       final url = await _uploader.uploadProof(file, jobId: job.id);
+      if (!mounted) return;
       setState(() => _screenshots[slot] = url);
     } on ProofDuplicateException catch (e) {
+      if (!mounted) return;
       setState(() => _error = e.toString());
     } catch (e) {
+      if (!mounted) return;
       setState(() => _error = 'Screenshot upload failed: $e');
     } finally {
       if (mounted) setState(() => _uploading = false);
@@ -261,8 +269,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                   if (job.url.isNotEmpty) ...[
                     const SizedBox(height: 14),
                     OutlinedButton.icon(
-                      onPressed: () => launchUrl(Uri.parse(job.url),
-                          mode: LaunchMode.externalApplication),
+                      onPressed: () => safeLaunch(job.url),
                       icon: const Icon(Icons.open_in_new, size: 18),
                       label: const Text('Open Task Link'),
                     ),

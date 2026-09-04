@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../theme.dart';
 
@@ -40,7 +39,7 @@ class ContactScreen extends StatelessWidget {
               subtitle: const Text('+880 1338-882758'),
               trailing: const Icon(Icons.open_in_new, size: 18),
               onTap: () =>
-                  launchUrl(Uri.parse('https://wa.me/$_whatsapp')),
+                  safeLaunch('https://wa.me/$_whatsapp'),
             ),
           ),
           Card(
@@ -53,7 +52,7 @@ class ContactScreen extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.w600)),
               subtitle: const Text(_email),
               trailing: const Icon(Icons.open_in_new, size: 18),
-              onTap: () => launchUrl(Uri.parse('mailto:$_email')),
+              onTap: () => safeLaunch('mailto:$_email'),
             ),
           ),
           const SizedBox(height: 16),
@@ -86,8 +85,7 @@ class ContactScreen extends StatelessWidget {
                       onPressed: () {
                         final text = Uri.encodeComponent(
                             'Hi, I am ${name.text.trim()}. ${message.text.trim()}');
-                        launchUrl(
-                            Uri.parse('https://wa.me/$_whatsapp?text=$text'));
+                        safeLaunch('https://wa.me/$_whatsapp?text=$text');
                       },
                     ),
                   ),
