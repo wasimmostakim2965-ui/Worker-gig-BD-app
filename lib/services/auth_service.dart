@@ -20,7 +20,7 @@ class AuthService extends ChangeNotifier {
 
   StreamSubscription<AuthState>? _sub;
 
-  void init() {
+  Future<void> init() async {
     _sub = client.auth.onAuthStateChange.listen((state) async {
       user = state.session?.user;
       if (user != null) {
@@ -31,16 +31,15 @@ class AuthService extends ChangeNotifier {
       loading = false;
       notifyListeners();
     });
-    user = client.auth.currentUser;
-    if (user != null) {
-      _loadProfile(user!.id).then((_) {
-        loading = false;
-        notifyListeners();
-      });
-    } else {
+    // Deferred so notifyListeners() never fires during the first build.
+    await Future(() async {
+      user = client.auth.currentUser;
+      if (user != null) {
+        await _loadProfile(user!.id);
+      }
       loading = false;
       notifyListeners();
-    }
+    });
   }
 
   Future<void> _loadProfile(String uid, [int retry = 0]) async {

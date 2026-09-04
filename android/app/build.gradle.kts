@@ -62,20 +62,15 @@ android {
 
     buildTypes {
         release {
-            // ✅ FIX #1: APK নাম ফিক্স করা হয়েছে (clear, visible name)
-            // R8/ProGuard: shrinks and obfuscates the app's bytecode so the
-            // source code can't be read from the released APK/AAB.
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            
-            // ✅ FIX #2: Output filename সহজ করা হয়েছে
-            //   বিল্ড সম্পূর্ণ হলে ফাইলটা স্পষ্টভাবে visible থাকবে
-            // CI-এ production-signed (secrets → key.properties); keystore
-            // ছাড়া লোকাল release বিল্ড debug key-তে পড়ে যায়।
+            // R8 minify/resource-shrinking stays OFF: Dart code is already
+            // AOT-compiled, so R8 only touched the (open-source) plugin glue
+            // while causing release-only startup crashes on some devices.
+            isMinifyEnabled = false
+            isShrinkResources = false
+
+            // CI signs with the production keystore (secrets → key.properties);
+            // a local release build without key.properties falls back to the
+            // debug key — test-only, never distribute that APK.
             signingConfig = if (hasReleaseKeystore) {
                 signingConfigs.getByName("release")
             } else {
@@ -83,8 +78,7 @@ android {
             }
         }
     }
-    
-    // ✅ FIX #3: Lint ওয়ার্নিং suppress করা হয়েছে
+
     lint {
         disable.add("MissingTranslation")
         disable.add("ExtraTranslation")

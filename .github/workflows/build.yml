@@ -3,6 +3,8 @@ name: Build Android App
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -78,6 +80,7 @@ jobs:
       # সরাসরি APK ডাউনলোড লিংক (ZIP নয়):
       # https://github.com/wasimmostakim2965-ui/Worker-gig-BD-app/releases
       - name: Publish GitHub Release
+        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
