@@ -306,7 +306,7 @@ double _num(dynamic v) => v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
 
 String _str(dynamic v) => v?.toString() ?? '';
 
-String? _strOrNull(dynamic v) => v == null ? null : v.toString();
+String? _strOrNull(dynamic v) => v?.toString();
 
 int _toInt(dynamic v) => v is num ? v.toInt() : int.tryParse('$v') ?? 0;
 

@@ -88,6 +88,7 @@ void main() {
   setUpAll(() async {
     await Supabase.initialize(
       url: _url,
+      // ignore: deprecated_member_use
       anonKey: _anon,
       authOptions: FlutterAuthClientOptions(
         localStorage: const EmptyLocalStorage(),
